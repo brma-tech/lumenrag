@@ -1,6 +1,8 @@
 /.env
 backend/.env
 backend/__pycache__/
+**/__pycache__/
+*.pyc
 backend/.venv/
 backend/build/
 backend/*.egg-info/
@@ -9,6 +11,7 @@ frontend/dist/
 frontend/*.tsbuildinfo
 frontend/vite.config.js
 frontend/vite.config.d.ts
+**/.pytest_cache/
 rag_data/
 *.log
 .superpowers/
