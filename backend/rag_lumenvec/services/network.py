@@ -19,15 +19,17 @@ def _origin(value: str) -> str:
 
 
 def allowed_outbound_origins() -> set[str]:
-    configured = os.getenv(
-        "LUMENRAG_ALLOWED_OUTBOUND_URLS",
-        os.getenv("LUMENVEC_BASE_URL", "http://localhost:19190"),
-    )
-    return {
+    primary_endpoint = os.getenv("LUMENVEC_BASE_URL", "http://localhost:19190")
+    configured = os.getenv("LUMENRAG_ALLOWED_OUTBOUND_URLS", "")
+    origins = {
+        _origin(primary_endpoint),
+    }
+    origins.update(
         _origin(item.strip())
         for item in configured.split(",")
         if item.strip()
-    }
+    )
+    return origins
 
 
 def validate_outbound_url(
@@ -37,6 +39,8 @@ def validate_outbound_url(
     allowed = allowed_outbound_origins() | (additional_allowed or set())
     if origin not in allowed:
         raise APIError(
-            "Destino externo nao autorizado. Configure LUMENRAG_ALLOWED_OUTBOUND_URLS."
+            f"Destino externo nao autorizado: {origin}. "
+            "Configure LUMENRAG_ALLOWED_OUTBOUND_URLS ou use o endpoint "
+            "definido em LUMENVEC_BASE_URL."
         )
     return value.rstrip("/")

@@ -14,6 +14,17 @@ def test_validate_outbound_url_accepts_configured_origin(monkeypatch) -> None:
     )
 
 
+def test_validate_outbound_url_keeps_primary_lumenvec_endpoint_allowed(
+    monkeypatch,
+) -> None:
+    monkeypatch.setenv("LUMENVEC_BASE_URL", "http://lumenvec.internal:19190")
+    monkeypatch.setenv("LUMENRAG_ALLOWED_OUTBOUND_URLS", "https://api.example.test")
+
+    assert validate_outbound_url("http://lumenvec.internal:19190/health").startswith(
+        "http://lumenvec.internal:19190"
+    )
+
+
 def test_validate_outbound_url_rejects_unconfigured_internal_target(
     monkeypatch,
 ) -> None:
