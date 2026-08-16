@@ -1,0 +1,128 @@
+name: LumenRAG CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    name: Python ${{ matrix.python }} / frontend
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install backend development dependencies
+        run: python -m pip install -r backend/requirements-dev.txt
+      - name: Lint and test backend
+        working-directory: backend
+        run: |
+          python -m ruff check .
+          python -m pytest
+      - name: Build frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+          npm audit --audit-level=high
+
+  native:
+    name: Native ${{ matrix.target }}
+    if: ${{ vars.LUMENVEC_REPOSITORY != '' }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: windows-latest
+            target: windows-amd64
+            python: "3.13"
+          - runner: ubuntu-24.04
+            target: linux-amd64
+            python: "3.13"
+          - runner: macos-13
+            target: macos-amd64
+            python: "3.13"
+          - runner: macos-14
+            target: macos-arm64
+            python: "3.13"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout LumenVec engine
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.LUMENVEC_REPOSITORY }}
+          ref: ${{ vars.LUMENVEC_REF || 'main' }}
+          path: lumenvec
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.23.x"
+      - name: Install build dependencies
+        run: python -m pip install -r backend/requirements-dev.txt
+      - name: Build native wheel
+        run: python build_wheels.py --target ${{ matrix.target }} --lumenvec-root lumenvec
+      - name: Smoke test wheel
+        shell: bash
+        run: python smoke_wheel.py "$(find dist/wheels -name '*.whl' | head -n 1)"
+      - name: Upload wheel and smoke receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: lumenrag-${{ matrix.target }}
+          path: |
+            dist/wheels/*.whl
+            .build/wheel-smoke/receipt.json
+
+  linux-arm64-wheel:
+    name: Cross-build linux-arm64 wheel
+    if: ${{ vars.LUMENVEC_REPOSITORY != '' }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout LumenVec engine
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.LUMENVEC_REPOSITORY }}
+          ref: ${{ vars.LUMENVEC_REF || 'main' }}
+          path: lumenvec
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.23.x"
+      - name: Install build dependencies
+        run: python -m pip install -r backend/requirements-dev.txt
+      - name: Build linux-arm64 wheel
+        run: python build_wheels.py --target linux-arm64 --lumenvec-root lumenvec
+      - name: Upload wheel
+        uses: actions/upload-artifact@v4
+        with:
+          name: lumenrag-linux-arm64
+          path: dist/wheels/*.whl

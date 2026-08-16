@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=75", "wheel>=0.45"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lumenrag"
+version = "0.1.0"
+description = "Local-first RAG studio powered by LumenVec"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{name = "brma-tech"}]
+readme = {text = "LumenRAG is a local-first RAG studio powered by LumenVec.", content-type = "text/markdown"}
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.115.0",
+  "uvicorn[standard]>=0.30.0",
+  "openai>=1.99.0,<3",
+  "pypdf>=5.0.0",
+  "python-docx>=1.1.0",
+  "python-dotenv>=1.0.1",
+  "python-multipart>=0.0.9",
+]
+
+[project.scripts]
+lumenrag = "lumenrag.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/brma-tech/lumenrag"
+Repository = "https://github.com/brma-tech/lumenrag"
+Issues = "https://github.com/brma-tech/lumenrag/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["lumenrag*", "rag_lumenvec*"]
+
+[tool.setuptools.package-data]
+lumenrag = ["assets/**/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+  "E",
+  "F",
+  "I",
+  "UP",
+  "B",
+]
+ignore = [
+  "B008",
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"

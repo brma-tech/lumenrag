@@ -1,0 +1,86 @@
+services:
+  lumenvec-data-init:
+    image: alpine:3.20
+    container_name: rag-lumenvec-data-init
+    command: ["sh", "-c", "mkdir -p /data/vectors && chown -R 65532:65532 /data"]
+    volumes:
+      - lumenvec_data:/data
+    restart: "no"
+
+  lumenvec:
+    image: ${LUMENVEC_IMAGE:-brunomarques/lumenvec:latest}
+    container_name: rag-lumenvec-db
+    depends_on:
+      lumenvec-data-init:
+        condition: service_completed_successfully
+    environment:
+      VECTOR_DB_PROTOCOL: http
+      VECTOR_DB_PORT: 19190
+      VECTOR_DB_GRPC_PORT: 19191
+      VECTOR_DB_SNAPSHOT_PATH: /data/snapshot.json
+      VECTOR_DB_WAL_PATH: /data/wal.log
+      VECTOR_DB_VECTOR_PATH: /data/vectors
+    volumes:
+      - lumenvec_data:/data
+    ports:
+      - "127.0.0.1:19190:19190"
+      - "127.0.0.1:19191:19191"
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+    container_name: rag-lumenvec-backend
+    env_file:
+      - path: ../.env
+        required: false
+      - path: ./backend/.env
+        required: false
+    environment:
+      LOCAL_OPENAI_BASE_URL: ${LOCAL_OPENAI_BASE_URL:-http://host.docker.internal:11434/v1}
+      AI_CHAT_PROVIDER: ${AI_CHAT_PROVIDER:-openai}
+      AI_EMBEDDING_PROVIDER: ${AI_EMBEDDING_PROVIDER:-openai}
+      LUMENVEC_BASE_URL: ${LUMENVEC_BASE_URL:-http://lumenvec:19190}
+      LUMENVEC_API_KEY: ${LUMENVEC_API_KEY:-}
+      RAG_COLLECTION: ${RAG_COLLECTION:-default}
+      RAG_SESSION: ${RAG_SESSION:-default}
+      RAG_EMBED_MODEL: ${RAG_EMBED_MODEL:-text-embedding-3-small}
+      RAG_CHAT_MODEL: ${RAG_CHAT_MODEL:-gpt-4.1-mini}
+      RAG_EMBED_DIMENSIONS: ${RAG_EMBED_DIMENSIONS:-256}
+      RAG_TOP_K: ${RAG_TOP_K:-5}
+      RAG_CONTEXT_BUDGET: ${RAG_CONTEXT_BUDGET:-6000}
+      RAG_DATA_DIR: /data/rag_data
+    volumes:
+      - ../rag_data:/data/rag_data
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      lumenvec:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/config', timeout=3).read()\""]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: rag-lumenvec-frontend
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:5174:80"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1/ >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    restart: unless-stopped
+
+volumes:
+  lumenvec_data:
