@@ -5,7 +5,6 @@ import {
   BarChart3,
   CheckCircle2,
   ClipboardList,
-  Database,
   FileText,
   Gauge,
   History,
@@ -402,13 +401,17 @@ function App() {
         <aside className="border-b border-[#263031] bg-[#090d0e]/95 p-4 backdrop-blur-xl lg:w-[320px] lg:border-b-0 lg:border-r">
           <div className="pb-5">
             <div className="mb-5 flex items-center gap-3">
-              <div className="brand-orbit flex h-11 w-11 items-center justify-center rounded-xl border border-teal-300/30 bg-teal-300/10 text-teal-200">
-                <Database className="h-5 w-5" />
+              <div className="brand-orbit flex h-12 w-12 items-center justify-center rounded-2xl border border-amber-200/25 bg-slate-950/55 p-1.5">
+                <img
+                  src="/lumenvec-logo.png"
+                  alt="LumenVec"
+                  className="h-full w-full object-contain"
+                />
               </div>
               <div>
                 <div className="flex items-center gap-2">
                   <h1 className="text-lg font-semibold tracking-[-0.03em] text-slate-50">LumenRAG</h1>
-                  <span className="rounded border border-teal-300/25 bg-teal-300/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-teal-200">Alpha</span>
+                  <span className="rounded border border-amber-300/30 bg-amber-300/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-amber-200">Alpha</span>
                 </div>
                 <p className="text-xs text-slate-400">RAG Studio · powered by LumenVec</p>
               </div>
