@@ -1,0 +1,67 @@
+name: Community PR approval notification
+
+on:
+  pull_request_target:
+    types: [opened, reopened, ready_for_review]
+  pull_request_review:
+    types: [submitted]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  notify:
+    name: Notify maintainer
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Send approval request or review update
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_NUMBER: ${{ github.event.pull_request.number || github.event.review.pull_request_url }}
+          PR_TITLE: ${{ github.event.pull_request.title || 'Pull request review submitted' }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login || github.event.review.user.login }}
+          PR_URL: ${{ github.event.pull_request.html_url || github.event.review.html_url }}
+          REVIEW_STATE: ${{ github.event.review.state || 'pending approval' }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          APPROVAL_EMAIL: ${{ secrets.SECURITY_APPROVAL_EMAIL }}
+        run: |
+          if [ -z "$SMTP_HOST" ] || [ -z "$SMTP_USERNAME" ] || [ -z "$SMTP_PASSWORD" ] || [ -z "$APPROVAL_EMAIL" ]; then
+            echo "SMTP notification skipped: repository SMTP secrets are not configured."
+            exit 0
+          fi
+          python - <<'PY'
+          import os
+          import smtplib
+          from email.message import EmailMessage
+
+          event = os.environ.get("EVENT_NAME", "pull_request")
+          review_state = os.environ.get("REVIEW_STATE", "pending approval")
+          if event == "pull_request_review":
+              subject = f"[LumenRAG] Review update: PR #{os.environ.get('PR_NUMBER')} ({review_state})"
+              intro = f"A community pull request received a review with state: {review_state}."
+          else:
+              subject = f"[LumenRAG] Approval requested: PR #{os.environ.get('PR_NUMBER')}"
+              intro = "A community pull request is waiting for maintainer approval."
+
+          message = EmailMessage()
+          message["From"] = os.environ["SMTP_USERNAME"]
+          message["To"] = os.environ["APPROVAL_EMAIL"]
+          message["Subject"] = subject
+          message.set_content(
+              f"{intro}\n\n"
+              f"Title: {os.environ.get('PR_TITLE', '')}\n"
+              f"Author: {os.environ.get('PR_AUTHOR', '')}\n"
+              f"Pull request: {os.environ.get('PR_URL', '')}\n\n"
+              "Review the required security checks and CODEOWNERS approval before merging."
+          )
+
+          port = int(os.environ.get("SMTP_PORT") or "587")
+          with smtplib.SMTP(os.environ["SMTP_HOST"], port, timeout=20) as smtp:
+              smtp.starttls()
+              smtp.login(os.environ["SMTP_USERNAME"], os.environ["SMTP_PASSWORD"])
+              smtp.send_message(message)
+          PY

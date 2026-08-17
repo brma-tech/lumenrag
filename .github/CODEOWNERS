@@ -1,0 +1,8 @@
+# Every change requires review from the maintainer before it can be merged.
+* @brunomarques007
+
+# Security-sensitive files always need explicit maintainer review.
+/.github/ @brunomarques007
+/backend/rag_lumenvec/services/network.py @brunomarques007
+/backend/rag_lumenvec/services/ai.py @brunomarques007
+/docker-compose.yml @brunomarques007

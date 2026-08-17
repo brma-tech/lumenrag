@@ -1,0 +1,84 @@
+name: LumenRAG Security
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '17 3 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dependency-and-code-audit:
+    name: Dependency and code audit
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install audit tools and backend dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r backend/requirements-dev.txt pip-audit bandit
+      - name: Audit Python dependencies
+        run: python -m pip_audit -r backend/requirements.txt
+      - name: Scan Python source with Bandit
+        run: python -m bandit -r backend/rag_lumenvec -ll
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Audit frontend dependencies
+        working-directory: frontend
+        run: |
+          npm ci
+          npm audit --audit-level=high
+
+  secret-scan:
+    name: Secret scan
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Scan repository history for secrets
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  codeql:
+    name: CodeQL
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [javascript-typescript, python]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+      - uses: github/codeql-action/analyze@v3
+        with:
+          category: /language:${{ matrix.language }}
+
+  security-gate:
+    name: Security gate
+    if: ${{ always() }}
+    needs: [dependency-and-code-audit, secret-scan, codeql]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Require every security job to pass
+        run: |
+          test "${{ needs.dependency-and-code-audit.result }}" = "success"
+          test "${{ needs.secret-scan.result }}" = "success"
+          test "${{ needs.codeql.result }}" = "success"
