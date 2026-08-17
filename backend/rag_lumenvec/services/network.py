@@ -5,6 +5,19 @@ from urllib.parse import urlsplit
 
 from rag_lumenvec.models import APIError
 
+# These are the fixed origins used by the providers in ``services.ai``.  They
+# are intentionally restricted to provider origins (not arbitrary wildcards),
+# so selecting a built-in provider does not require duplicating its URL in the
+# local allowlist while custom endpoints remain opt-in.
+BUILTIN_AI_OUTBOUND_ORIGINS = {
+    "https://api.openai.com",
+    "https://openrouter.ai",
+    "https://api.groq.com",
+    "https://api.together.xyz",
+    "https://api.anthropic.com",
+    "http://host.docker.internal:11434",
+}
+
 
 def _origin(value: str) -> str:
     parsed = urlsplit(value)
@@ -23,6 +36,7 @@ def allowed_outbound_origins() -> set[str]:
     configured = os.getenv("LUMENRAG_ALLOWED_OUTBOUND_URLS", "")
     origins = {
         _origin(primary_endpoint),
+        *BUILTIN_AI_OUTBOUND_ORIGINS,
     }
     origins.update(
         _origin(item.strip())

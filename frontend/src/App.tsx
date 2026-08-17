@@ -3,10 +3,14 @@ import {
   Activity,
   AlertTriangle,
   BarChart3,
+  Bot,
   CheckCircle2,
   ClipboardList,
+  Cloud,
+  Cpu,
   FileText,
   Gauge,
+  Globe2,
   History,
   Layers3,
   MessageSquare,
@@ -15,9 +19,11 @@ import {
   Send,
   Settings2,
   SlidersHorizontal,
+  Sparkles,
   Trash2,
   Upload,
   X,
+  Zap,
 } from "lucide-react";
 import { ChatExperience } from "./components/studio/ChatExperience";
 import { api, defaultConfig } from "./api";
@@ -641,15 +647,12 @@ function AiSettingsModal({
             <div className="space-y-3 rounded-lg border border-slate-800 bg-slate-900/60 p-3">
               <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Chat</div>
               <Field label="Provider">
-                <select
-                  className="input"
+                <ProviderPicker
+                  providers={providers.filter((provider) => provider.supports_chat)}
                   value={config.chat_provider}
-                  onChange={(e) => onChangeConfig((current) => ({ ...current, chat_provider: e.target.value }))}
-                >
-                  {providers.filter((provider) => provider.supports_chat).map((provider) => (
-                    <option key={provider.id} value={provider.id}>{provider.name}</option>
-                  ))}
-                </select>
+                  providerConfig={providerConfig}
+                  onChange={(value) => onChangeConfig((current) => ({ ...current, chat_provider: value }))}
+                />
               </Field>
               <Field label="Modelo">
                 <div className="grid grid-cols-[1fr_auto] gap-2">
@@ -672,15 +675,12 @@ function AiSettingsModal({
             <div className="space-y-3 rounded-lg border border-slate-800 bg-slate-900/60 p-3">
               <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Embeddings</div>
               <Field label="Provider">
-                <select
-                  className="input"
+                <ProviderPicker
+                  providers={providers.filter((provider) => provider.supports_embeddings)}
                   value={config.embedding_provider}
-                  onChange={(e) => onChangeConfig((current) => ({ ...current, embedding_provider: e.target.value }))}
-                >
-                  {providers.filter((provider) => provider.supports_embeddings).map((provider) => (
-                    <option key={provider.id} value={provider.id}>{provider.name}</option>
-                  ))}
-                </select>
+                  providerConfig={providerConfig}
+                  onChange={(value) => onChangeConfig((current) => ({ ...current, embedding_provider: value }))}
+                />
               </Field>
               <Field label="Modelo">
                 <div className="grid grid-cols-[1fr_auto] gap-2">
@@ -1372,6 +1372,65 @@ function StatusPill({ label, muted = false }: { label: string; muted?: boolean }
     }`}>
       {label}
     </span>
+  );
+}
+
+function providerVisual(providerId: string) {
+  const visuals: Record<string, { icon: React.ReactNode; tone: string; hint: string }> = {
+    openai: { icon: <Sparkles className="h-4 w-4" />, tone: "text-emerald-200 bg-emerald-300/10", hint: "Modelos GPT e embeddings" },
+    openrouter: { icon: <Globe2 className="h-4 w-4" />, tone: "text-violet-200 bg-violet-300/10", hint: "Catálogo multi-provedor" },
+    groq: { icon: <Zap className="h-4 w-4" />, tone: "text-orange-200 bg-orange-300/10", hint: "Inferência rápida" },
+    together: { icon: <Cloud className="h-4 w-4" />, tone: "text-sky-200 bg-sky-300/10", hint: "Modelos open-source" },
+    "local-openai": { icon: <Cpu className="h-4 w-4" />, tone: "text-teal-200 bg-teal-300/10", hint: "Executado localmente" },
+  };
+  return visuals[providerId] || { icon: <Bot className="h-4 w-4" />, tone: "text-slate-200 bg-slate-300/10", hint: "Provedor compatível" };
+}
+
+function ProviderPicker({
+  providers,
+  value,
+  providerConfig,
+  onChange,
+}: {
+  providers: AIProvider[];
+  value: string;
+  providerConfig: Record<string, AIProviderRuntimeConfig>;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div className="grid gap-2 sm:grid-cols-2" role="radiogroup" aria-label="Selecionar provedor">
+      {providers.map((provider) => {
+        const selected = provider.id === value;
+        const visual = providerVisual(provider.id);
+        const configured = providerConfig[provider.id]?.has_api_key || provider.id === "local-openai";
+        return (
+          <button
+            key={provider.id}
+            type="button"
+            role="radio"
+            aria-checked={selected}
+            className={`group flex min-h-[68px] items-center gap-3 rounded-lg border p-3 text-left transition ${
+              selected
+                ? "border-teal-300/70 bg-teal-300/10 shadow-[0_0_0_2px_rgba(45,212,191,0.10)]"
+                : "border-slate-800 bg-slate-950/40 hover:border-slate-600 hover:bg-slate-900"
+            }`}
+            onClick={() => onChange(provider.id)}
+          >
+            <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${visual.tone}`}>
+              {visual.icon}
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="flex items-center gap-2 text-sm font-semibold text-slate-100">
+                {provider.name}
+                {selected && <CheckCircle2 className="h-3.5 w-3.5 text-teal-200" />}
+              </span>
+              <span className="block truncate text-[11px] text-slate-500">{visual.hint}</span>
+            </span>
+            <span className={`h-2 w-2 rounded-full ${configured ? "bg-teal-300" : "bg-slate-700"}`} title={configured ? "Credencial configurada" : "Credencial pendente"} />
+          </button>
+        );
+      })}
+    </div>
   );
 }
 

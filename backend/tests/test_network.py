@@ -6,6 +6,21 @@ from rag_lumenvec.models import APIError
 from rag_lumenvec.services.network import validate_outbound_url
 
 
+@pytest.mark.parametrize(
+    "url",
+    [
+        "https://api.openai.com/v1/models",
+        "https://openrouter.ai/api/v1/models",
+        "https://api.groq.com/openai/v1/models",
+        "https://api.together.xyz/v1/models",
+        "https://api.anthropic.com/v1/models",
+        "http://host.docker.internal:11434/v1/models",
+    ],
+)
+def test_validate_outbound_url_accepts_builtin_ai_provider_origins(url: str) -> None:
+    assert validate_outbound_url(url) == url
+
+
 def test_validate_outbound_url_accepts_configured_origin(monkeypatch) -> None:
     monkeypatch.setenv("LUMENRAG_ALLOWED_OUTBOUND_URLS", "http://localhost:19190")
 
