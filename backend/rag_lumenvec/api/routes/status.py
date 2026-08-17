@@ -75,7 +75,7 @@ def operational_status(
     return {
         "service": {
             "name": "LumenRAG",
-            "version": "0.1.0",
+            "version": "0.1.1",
             "base_url": base_url,
             "collection": collection,
         },

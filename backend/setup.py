@@ -49,7 +49,7 @@ class LumenRAGBuildPy(build_py_base):
             files[asset.relative_to(assets).as_posix()] = sha256(asset)
         manifest = {
             "schema_version": 1,
-            "product_version": "0.1.0",
+            "product_version": "0.1.1",
             "target_platform": target,
             "binary": f"bin/{binary_name}",
             "studio": "studio/index.html",
