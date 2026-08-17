@@ -47,11 +47,9 @@ jobs:
         with:
           fetch-depth: 0
       - name: Scan repository history for secrets
-        uses: gitleaks/gitleaks-action@v2
+        uses: trufflesecurity/trufflehog@main
         with:
-          config: .gitleaks.toml
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          extra_args: --only-verified
 
   codeql:
     name: CodeQL
