@@ -14,6 +14,7 @@ BUILTIN_AI_OUTBOUND_ORIGINS = {
     "https://openrouter.ai",
     "https://api.groq.com",
     "https://api.together.xyz",
+    "https://api.anthropic.com",
     "http://host.docker.internal:11434",
 }
 

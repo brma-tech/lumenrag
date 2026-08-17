@@ -13,6 +13,7 @@ from rag_lumenvec.services.network import validate_outbound_url
         "https://openrouter.ai/api/v1/models",
         "https://api.groq.com/openai/v1/models",
         "https://api.together.xyz/v1/models",
+        "https://api.anthropic.com/v1/models",
         "http://host.docker.internal:11434/v1/models",
     ],
 )
