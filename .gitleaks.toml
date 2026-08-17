@@ -1,0 +1,3 @@
+[allowlist]
+description = "Historical static-analysis reports contain example credential field names, not credentials."
+paths = ['''^security/.*\\.txt$''']
