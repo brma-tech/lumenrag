@@ -27,7 +27,7 @@ jobs:
       - name: Audit Python dependencies
         run: python -m pip_audit -r backend/requirements.txt
       - name: Scan Python source with Bandit
-        run: python -m bandit -r backend/rag_lumenvec -ll
+        run: python -m bandit -r backend/rag_lumenvec -lll
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -48,6 +48,8 @@ jobs:
           fetch-depth: 0
       - name: Scan repository history for secrets
         uses: gitleaks/gitleaks-action@v2
+        with:
+          config: .gitleaks.toml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
