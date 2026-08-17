@@ -87,7 +87,7 @@ jobs:
         shell: bash
         run: python smoke_wheel.py "$(find dist/wheels -name '*.whl' | head -n 1)"
       - name: Upload wheel and smoke receipt
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: lumenrag-${{ matrix.target }}
           path: |
@@ -122,7 +122,7 @@ jobs:
       - name: Build linux-arm64 wheel
         run: python build_wheels.py --target linux-arm64 --lumenvec-root lumenvec
       - name: Upload wheel
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: lumenrag-linux-arm64
           path: dist/wheels/*.whl
