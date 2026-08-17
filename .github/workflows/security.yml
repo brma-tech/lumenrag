@@ -28,7 +28,7 @@ jobs:
         run: python -m pip_audit -r backend/requirements.txt
       - name: Scan Python source with Bandit
         run: python -m bandit -r backend/rag_lumenvec -lll
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
