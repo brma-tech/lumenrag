@@ -24,7 +24,7 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title="LumenRAG API",
         description="Local-first RAG application powered by LumenVec.",
-        version="0.1.1",
+        version="0.1.2",
     )
 
     app.add_middleware(
