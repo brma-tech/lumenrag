@@ -13,6 +13,8 @@ import {
   X,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import type { Language } from "../../i18n";
+import { t } from "../../i18n";
 
 const cn = (...classes: (string | undefined | null | false)[]) =>
   classes.filter(Boolean).join(" ");
@@ -46,6 +48,7 @@ if (typeof document !== "undefined" && !document.getElementById("ai-prompt-box-s
 
 interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   className?: string;
+  language?: Language;
 }
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
@@ -456,6 +459,7 @@ interface PromptInputBoxProps {
   lastMessage?: string;
   placeholder?: string;
   className?: string;
+  language?: Language;
 }
 
 export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxProps>(
@@ -464,7 +468,8 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
       onSend = () => {},
       isLoading = false,
       lastMessage = "",
-      placeholder = "Pergunte algo sobre os arquivos indexados...",
+      placeholder,
+      language = "en",
       className,
     } = props;
     const [input, setInput] = React.useState("");
@@ -619,7 +624,7 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
 
           <div className={cn("transition-all duration-300", isRecording ? "h-0 overflow-hidden opacity-0" : "opacity-100")}>
             <PromptInputTextarea
-              placeholder={showSearch ? "Search the web..." : showThink ? "Think deeply..." : showCanvas ? "Create on canvas..." : placeholder}
+              placeholder={showSearch ? t(language, "searchPlaceholder") : showThink ? t(language, "thinkPlaceholder") : showCanvas ? t(language, "canvasPlaceholder") : (placeholder ?? t(language, "ask"))}
               className="text-base"
               onKeyDown={handleTextareaKeyDown}
             />

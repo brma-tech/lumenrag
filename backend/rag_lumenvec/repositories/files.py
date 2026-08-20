@@ -196,7 +196,7 @@ def load_evaluation_run(run_id: str) -> dict[str, Any]:
     safe_id = re.sub(r"[^a-zA-Z0-9_-]+", "-", run_id).strip("-")
     path = config.EVAL_DIR / f"{safe_id}.json"
     if not safe_id or not path.exists():
-        raise FileNotFoundError(f"Avaliacao nao encontrada: {run_id}")
+        raise FileNotFoundError(f"Evaluation not found: {run_id}")
 
     rows = json.loads(path.read_text(encoding="utf-8"))
     total = len(rows)

@@ -21,7 +21,11 @@ def score_rag_answer(
 ) -> dict[str, Any]:
     context_text = (
         "\n\n".join(
-            f"[Fonte {index + 1}] {chunk.record.text}"
+            (
+                f"[Source {index + 1} | File: {chunk.record.document_name} | "
+                f"Chunk: {chunk.record.chunk_index} | Distance: {chunk.distance:.4f}]\n"
+                f"{chunk.record.text}"
+            )
             for index, chunk in enumerate(context_chunks)
         )
         or "Sem contexto"
@@ -57,4 +61,3 @@ def score_rag_answer(
         }
     except Exception:
         return {"score": 0, "verdict": "unparsed", "justification": raw[:300]}
-

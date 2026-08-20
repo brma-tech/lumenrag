@@ -31,7 +31,7 @@ def operational_status(
     embedding_provider = providers.get(ai_config["embedding_provider"])
     runtime_providers = ai_config.get("providers", {})
 
-    lumenvec_status = "erro"
+    lumenvec_status = "error"
     lumenvec_message = ""
     try:
         lumenvec_status = LumenVecClient(base_url, timeout=5).health()
@@ -48,25 +48,25 @@ def operational_status(
     checks = [
         {
             "id": "lumenvec",
-            "label": "LumenVec acessivel",
-            "ok": lumenvec_status != "erro",
+            "label": "LumenVec reachable",
+            "ok": lumenvec_status != "error",
             "detail": lumenvec_status if not lumenvec_message else lumenvec_message,
         },
         {
             "id": "documents",
-            "label": "Base com documentos",
+            "label": "Knowledge base has documents",
             "ok": len(documents) > 0,
-            "detail": f"{len(documents)} documento(s)",
+            "detail": f"{len(documents)} document(s)",
         },
         {
             "id": "ai_keys",
-            "label": "Chaves de IA configuradas",
+            "label": "AI keys configured",
             "ok": len(missing_keys) == 0,
             "detail": "ok" if not missing_keys else ", ".join(missing_keys),
         },
         {
             "id": "models",
-            "label": "Modelos selecionados",
+            "label": "Models selected",
             "ok": bool(ai_config["chat_model"] and ai_config["embed_model"]),
             "detail": f"{ai_config['chat_model']} / {ai_config['embed_model']}",
         },
@@ -75,7 +75,7 @@ def operational_status(
     return {
         "service": {
             "name": "LumenRAG",
-            "version": "0.1.4",
+            "version": "0.1.5",
             "base_url": base_url,
             "collection": collection,
         },

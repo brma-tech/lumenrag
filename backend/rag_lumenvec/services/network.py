@@ -24,7 +24,7 @@ def _origin(value: str) -> str:
     if parsed.scheme not in {"http", "https"} or not parsed.hostname:
         raise APIError("URL de servico deve usar HTTP(S) com hostname valido.")
     if parsed.username or parsed.password:
-        raise APIError("URL de servico nao pode conter credenciais embutidas.")
+        raise APIError("Service URLs cannot contain embedded credentials.")
     port = parsed.port
     default_port = 443 if parsed.scheme == "https" else 80
     suffix = "" if port in {None, default_port} else f":{port}"
@@ -53,8 +53,8 @@ def validate_outbound_url(
     allowed = allowed_outbound_origins() | (additional_allowed or set())
     if origin not in allowed:
         raise APIError(
-            f"Destino externo nao autorizado: {origin}. "
-            "Configure LUMENRAG_ALLOWED_OUTBOUND_URLS ou use o endpoint "
-            "definido em LUMENVEC_BASE_URL."
+            f"Unauthorized external destination: {origin}. "
+            "Configure LUMENRAG_ALLOWED_OUTBOUND_URLS or use the endpoint "
+            "defined in LUMENVEC_BASE_URL."
         )
     return value.rstrip("/")
