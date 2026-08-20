@@ -453,6 +453,7 @@ const CustomDivider: React.FC = () => (
 interface PromptInputBoxProps {
   onSend?: (message: string, files?: File[]) => void;
   isLoading?: boolean;
+  lastMessage?: string;
   placeholder?: string;
   className?: string;
 }
@@ -462,6 +463,7 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
     const {
       onSend = () => {},
       isLoading = false,
+      lastMessage = "",
       placeholder = "Pergunte algo sobre os arquivos indexados...",
       className,
     } = props;
@@ -548,6 +550,13 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
       }
     };
 
+    const handleTextareaKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (event.key === "ArrowUp" && !event.shiftKey && !input.trim() && lastMessage) {
+        event.preventDefault();
+        setInput(lastMessage);
+      }
+    };
+
     const handleStopRecording = (duration: number) => {
       setIsRecording(false);
       onSend(`[Voice message - ${duration} seconds]`, []);
@@ -612,6 +621,7 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
             <PromptInputTextarea
               placeholder={showSearch ? "Search the web..." : showThink ? "Think deeply..." : showCanvas ? "Create on canvas..." : placeholder}
               className="text-base"
+              onKeyDown={handleTextareaKeyDown}
             />
           </div>
 
@@ -647,11 +657,17 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
               </PromptInputAction>
 
               <div className="flex items-center">
-                <ModeButton active={showSearch} color="#1EAEDB" label="Search" icon={<Globe className="w-4 h-4" />} onClick={() => handleToggleChange("search")} />
+                <PromptInputAction tooltip="Search mode: adds a [Search] hint to the prompt (provider search is not invoked yet)">
+                  <ModeButton active={showSearch} color="#1EAEDB" label="Search" icon={<Globe className="w-4 h-4" />} onClick={() => handleToggleChange("search")} />
+                </PromptInputAction>
                 <CustomDivider />
-                <ModeButton active={showThink} color="#8B5CF6" label="Think" icon={<BrainCog className="w-4 h-4" />} onClick={() => handleToggleChange("think")} />
+                <PromptInputAction tooltip="Think mode: adds a [Think] hint to the prompt">
+                  <ModeButton active={showThink} color="#8B5CF6" label="Think" icon={<BrainCog className="w-4 h-4" />} onClick={() => handleToggleChange("think")} />
+                </PromptInputAction>
                 <CustomDivider />
-                <ModeButton active={showCanvas} color="#F97316" label="Canvas" icon={<FolderCode className="w-4 h-4" />} onClick={() => setShowCanvas((prev) => !prev)} />
+                <PromptInputAction tooltip="Canvas mode: adds a [Canvas] hint to the prompt (canvas integration is planned)">
+                  <ModeButton active={showCanvas} color="#F97316" label="Canvas" icon={<FolderCode className="w-4 h-4" />} onClick={() => setShowCanvas((prev) => !prev)} />
+                </PromptInputAction>
               </div>
             </div>
 

@@ -107,6 +107,7 @@ export function ChatExperience({
             <PromptInputBox
               onSend={onSend}
               isLoading={loading}
+              lastMessage={[...messages].reverse().find((message) => message.role === "user")?.content ?? ""}
               placeholder={
                 selectedDocuments.length
                   ? `Pergunte usando ${selectedDocuments.length} documento(s) selecionado(s)...`
