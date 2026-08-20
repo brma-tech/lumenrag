@@ -142,7 +142,21 @@ class LumenVecClient:
             detail = exc.read().decode("utf-8", "ignore")
             raise APIError(f"{method} {path} returned {exc.code}: {detail}") from exc
         except error.URLError as exc:
-            raise APIError(f"failed to reach {self.base_url}: {exc.reason}") from exc
+            raise APIError(
+                f"failed to reach LumenVec at {self.base_url}: {exc.reason}"
+            ) from exc
+        except (
+            ConnectionResetError,
+            ConnectionAbortedError,
+            BrokenPipeError,
+            OSError,
+        ) as exc:
+            # Windows reports a peer-closed socket as WinError 10054. Keep the
+            # endpoint in the error so the API response identifies which hop
+            # failed instead of exposing an opaque generic 400.
+            raise APIError(
+                f"LumenVec connection failed at {self.base_url}: {exc}"
+            ) from exc
 
 
 def quote_path(value: str) -> str:

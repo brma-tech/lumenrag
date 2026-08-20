@@ -6,10 +6,13 @@ from typing import Any
 
 from openai import OpenAI
 
+from rag_lumenvec.core.logging import get_logger
 from rag_lumenvec.models import ChunkRecord, RetrievedChunk
 from rag_lumenvec.repositories.files import load_chunk_records
 from rag_lumenvec.services.ai import embed_texts
 from rag_lumenvec.services.lumenvec import LumenVecClient
+
+logger = get_logger(__name__)
 
 
 def tokenize_text(text: str) -> set[str]:
@@ -88,7 +91,9 @@ def search_context(
     context_budget_chars: int,
     document_names: list[str] | None = None,
 ) -> list[RetrievedChunk]:
+    logger.info("chat stage=embedding model=%s dimensions=%s", embed_model, dimensions)
     embedding = embed_texts(openai_client, embed_model, [question], dimensions)[0]
+    logger.info("chat stage=lumenvec_search collection=%s top_k=%s", collection, top_k)
     results = lumen_client.search(collection, embedding, top_k * 3)
     records = load_chunk_records(collection)
     allowed_documents = set(document_names or [])
