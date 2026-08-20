@@ -1,0 +1,20 @@
+site_name: LumenRAG
+site_description: Local-first RAG studio powered by LumenVec
+site_url: https://brma-tech.github.io/lumenrag/
+repo_url: https://github.com/brma-tech/lumenrag
+repo_name: brma-tech/lumenrag
+theme:
+  name: material
+  language: en
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - search.highlight
+nav:
+  - Home: index.md
+  - Getting started: getting-started.md
+  - Configuration: configuration.md
+  - Architecture: architecture.md
+  - Distribution: distribution.md
+  - Troubleshooting: troubleshooting.md
