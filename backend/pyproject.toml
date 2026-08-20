@@ -9,7 +9,7 @@ description = "Local-first RAG studio powered by LumenVec"
 license = "MIT"
 license-files = ["LICENSE"]
 authors = [{name = "brma-tech"}]
-readme = {text = "LumenRAG is a local-first RAG studio powered by LumenVec.", content-type = "text/markdown"}
+readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.11"
 dependencies = [
   "fastapi>=0.115.0",
@@ -28,6 +28,8 @@ lumenrag = "lumenrag.cli:main"
 Homepage = "https://github.com/brma-tech/lumenrag"
 Repository = "https://github.com/brma-tech/lumenrag"
 Issues = "https://github.com/brma-tech/lumenrag/issues"
+Documentation = "https://brma-tech.github.io/lumenrag/"
+Changelog = "https://github.com/brma-tech/lumenrag/releases"
 
 [tool.setuptools.packages.find]
 where = ["."]
