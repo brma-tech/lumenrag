@@ -3,6 +3,7 @@ from __future__ import annotations
 import pytest
 
 from rag_lumenvec.models import APIError
+from rag_lumenvec.services.lumenvec import LumenVecClient
 from rag_lumenvec.services.network import validate_outbound_url
 
 
@@ -38,6 +39,17 @@ def test_validate_outbound_url_keeps_primary_lumenvec_endpoint_allowed(
     assert validate_outbound_url("http://lumenvec.internal:19190/health").startswith(
         "http://lumenvec.internal:19190"
     )
+
+
+def test_lumenvec_connection_reset_includes_endpoint(monkeypatch) -> None:
+    monkeypatch.setenv("LUMENVEC_BASE_URL", "http://127.0.0.1:19190")
+
+    def reset(*_args, **_kwargs):
+        raise ConnectionResetError(10054, "connection reset by peer")
+
+    monkeypatch.setattr("rag_lumenvec.services.lumenvec.request.urlopen", reset)
+    with pytest.raises(APIError, match="LumenVec connection failed.*127.0.0.1:19190"):
+        LumenVecClient("http://127.0.0.1:19190").health()
 
 
 def test_validate_outbound_url_rejects_unconfigured_internal_target(

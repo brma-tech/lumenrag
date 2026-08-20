@@ -5,6 +5,7 @@ from typing import Any
 from fastapi import APIRouter, Query
 
 from rag_lumenvec.core.config import DEFAULT_COLLECTION, DEFAULT_SESSION
+from rag_lumenvec.core.logging import get_logger
 from rag_lumenvec.repositories.files import (
     delete_chat_history,
     load_chat_history,
@@ -19,6 +20,7 @@ from rag_lumenvec.services.retrieval import search_context, source_payload
 from .errors import api_error
 
 router = APIRouter()
+logger = get_logger(__name__)
 
 
 @router.get("/chat/history")
@@ -43,6 +45,7 @@ def chat(request_data: ChatRequest) -> dict[str, Any]:
     try:
         messages = load_chat_history(request_data.collection, request_data.session_id)
         messages.append({"role": "user", "content": request_data.message})
+        logger.info("chat stage=lumenvec_search collection=%s", request_data.collection)
         chunks = search_context(
             lumen_client=LumenVecClient(request_data.base_url),
             openai_client=ai_client(request_data.embedding_provider),
@@ -54,6 +57,7 @@ def chat(request_data: ChatRequest) -> dict[str, Any]:
             context_budget_chars=request_data.context_budget_chars,
             document_names=request_data.document_names,
         )
+        logger.info("chat stage=chat_completion chunks=%s", len(chunks))
         answer = answer_with_rag(
             openai_client=ai_client(request_data.chat_provider),
             chat_model=request_data.chat_model,
@@ -65,4 +69,5 @@ def chat(request_data: ChatRequest) -> dict[str, Any]:
         save_chat_history(request_data.collection, request_data.session_id, messages)
         return {"answer": answer, "sources": sources, "messages": messages}
     except Exception as exc:
+        logger.exception("chat failed stage=processing error=%s", exc)
         raise api_error(exc) from exc
