@@ -16,7 +16,7 @@ def test_api_exposes_lumenrag_identity(monkeypatch, tmp_path) -> None:
     assert response.status_code == 200
     assert response.json() == {
         "name": "LumenRAG",
-        "version": "0.1.4",
+        "version": "0.1.5",
         "studio": "not_built",
         "docs": "/docs",
     }
@@ -93,7 +93,7 @@ def test_empty_evaluation_request_returns_validation_error() -> None:
     assert response.status_code == 400
     detail = response.json()["detail"]
     assert detail["error_code"] == "request_failed"
-    assert "pergunta" in detail["message"].lower()
+    assert "question" in detail["message"].lower()
 
 
 def test_evaluations_endpoint_returns_runs_list() -> None:
@@ -113,7 +113,7 @@ def test_missing_evaluation_detail_returns_error() -> None:
     assert response.status_code == 400
     detail = response.json()["detail"]
     assert detail["error_code"] == "request_failed"
-    assert "avaliacao" in detail["message"].lower()
+    assert "evaluation" in detail["message"].lower()
 
 
 def test_status_endpoint_returns_operational_snapshot(
