@@ -26,6 +26,7 @@ from rag_lumenvec.services.ingestion import (
     ingest_document,
 )
 from rag_lumenvec.services.lumenvec import LumenVecClient
+from rag_lumenvec.services.vector_graph import build_vector_graph
 
 from .errors import api_error
 
@@ -47,6 +48,18 @@ def documents(collection: str = Query(DEFAULT_COLLECTION)) -> dict[str, Any]:
     return {"documents": summarize_documents(collection)}
 
 
+@router.get("/vector-map")
+def vector_map(
+    collection: str = Query(DEFAULT_COLLECTION),
+    base_url: str = Query(DEFAULT_BASE_URL),
+    limit: int = Query(60, ge=10, le=100),
+) -> dict[str, Any]:
+    try:
+        return build_vector_graph(LumenVecClient(base_url), collection, limit)
+    except Exception as exc:
+        raise api_error(exc) from exc
+
+
 @router.post("/ingest")
 async def ingest(
     files: list[UploadFile] = File(...),
@@ -58,7 +71,7 @@ async def ingest(
 ) -> dict[str, Any]:
     if len(files) > MAX_UPLOAD_FILES:
         raise api_error(
-            ValueError(f"Limite de {MAX_UPLOAD_FILES} arquivos por requisicao.")
+            ValueError(f"Limit of {MAX_UPLOAD_FILES} files per request.")
         )
     try:
         lumen = LumenVecClient(base_url)
@@ -87,10 +100,10 @@ async def ingest(
                 message = "Arquivo indexado com sucesso."
                 if chunks == -1:
                     status = "skipped"
-                    message = "Arquivo já estava indexado sem alterações."
+                    message = "The file was already indexed with no changes."
                 elif chunks == 0:
                     status = "empty"
-                    message = "Nenhum texto útil foi encontrado no arquivo."
+                    message = "No usable text was found in the file."
                 else:
                     indexed_files += 1
                     total_chunks += chunks

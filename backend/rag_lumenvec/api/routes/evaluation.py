@@ -40,7 +40,7 @@ def evaluate(request_data: EvaluationRequest) -> dict[str, Any]:
     try:
         questions = parse_eval_questions(request_data.questions)
         if not questions:
-            raise APIError("Informe pelo menos uma pergunta.")
+            raise APIError("Provide at least one question.")
 
         embedding_ai = ai_client(request_data.embedding_provider)
         chat_ai = ai_client(request_data.chat_provider)

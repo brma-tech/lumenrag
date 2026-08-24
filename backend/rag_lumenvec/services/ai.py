@@ -172,7 +172,7 @@ def ai_client(provider_id: str) -> OpenAI:
     )
     api_key = provider_config.get("api_key") or os.getenv(provider.api_key_env, "")
     if not api_key and provider_id != "local-openai":
-        raise APIError(f"API key nao configurada para {provider.name}.")
+        raise APIError(f"API key is not configured for {provider.name}.")
     return OpenAI(api_key=api_key or "local", base_url=base_url)
 
 
@@ -237,5 +237,5 @@ def embed_texts(
 def openai_client() -> OpenAI:
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
-        raise APIError("OPENAI_API_KEY nao configurada.")
+        raise APIError("OPENAI_API_KEY is not configured.")
     return OpenAI(api_key=api_key)

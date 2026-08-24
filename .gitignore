@@ -13,6 +13,7 @@ frontend/vite.config.js
 frontend/vite.config.d.ts
 **/.pytest_cache/
 rag_data/
+data/
 *.log
 .superpowers/
 .build/

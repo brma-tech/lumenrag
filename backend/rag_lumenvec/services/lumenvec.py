@@ -87,6 +87,27 @@ class LumenVecClient:
         body = self._first_success(candidates)
         return normalize_search_results(json.loads(body.decode("utf-8")))
 
+    def list_vectors(self, limit: int = 80) -> list[dict[str, Any]]:
+        body = self._request("GET", f"/vectors?limit={max(1, min(limit, 200))}")
+        payload = json.loads(body.decode("utf-8"))
+        items = (
+            payload.get("vectors", payload)
+            if isinstance(payload, dict)
+            else payload
+        )
+        if not isinstance(items, list):
+            return []
+        return [
+            {
+                "id": str(item["id"]),
+                "values": [float(value) for value in item["values"]],
+            }
+            for item in items
+            if isinstance(item, dict)
+            and item.get("id")
+            and isinstance(item.get("values"), list)
+        ]
+
     def delete_vector(self, collection: str, vector_id: str) -> None:
         safe_id = quote_path(vector_id)
         candidates = [
