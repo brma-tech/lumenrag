@@ -27,7 +27,9 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - name: Install backend development dependencies
-        run: python -m pip install -r backend/requirements-dev.txt
+        run: |
+          python -m pip install --upgrade 'pip>=26.2'
+          python -m pip install -r backend/requirements-dev.txt
       - name: Lint and test backend
         working-directory: backend
         run: |
@@ -42,7 +44,6 @@ jobs:
 
   native:
     name: Native ${{ matrix.target }}
-    if: ${{ vars.LUMENVEC_REPOSITORY != '' }}
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
@@ -54,7 +55,7 @@ jobs:
           - runner: ubuntu-24.04
             target: linux-amd64
             python: "3.13"
-          - runner: macos-13
+          - runner: macos-15-intel
             target: macos-amd64
             python: "3.13"
           - runner: macos-14
@@ -65,8 +66,8 @@ jobs:
       - name: Checkout LumenVec engine
         uses: actions/checkout@v4
         with:
-          repository: ${{ vars.LUMENVEC_REPOSITORY }}
-          ref: ${{ vars.LUMENVEC_REF || 'main' }}
+          repository: brma-tech/lumenvec-community
+          ref: ee2052930f95024305fb6be19a74acb34049893d
           path: lumenvec
       - uses: actions/setup-python@v7
         with:
@@ -78,9 +79,12 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - uses: actions/setup-go@v7
         with:
-          go-version: "1.23.x"
+          go-version-file: lumenvec/go.mod
       - name: Install build dependencies
         run: python -m pip install -r backend/requirements-dev.txt
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
       - name: Build native wheel
         run: python build_wheels.py --target ${{ matrix.target }} --lumenvec-root lumenvec
       - name: Smoke test wheel
@@ -96,15 +100,14 @@ jobs:
 
   linux-arm64-wheel:
     name: Cross-build linux-arm64 wheel
-    if: ${{ vars.LUMENVEC_REPOSITORY != '' }}
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - name: Checkout LumenVec engine
         uses: actions/checkout@v4
         with:
-          repository: ${{ vars.LUMENVEC_REPOSITORY }}
-          ref: ${{ vars.LUMENVEC_REF || 'main' }}
+          repository: brma-tech/lumenvec-community
+          ref: ee2052930f95024305fb6be19a74acb34049893d
           path: lumenvec
       - uses: actions/setup-python@v7
         with:
@@ -116,9 +119,12 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - uses: actions/setup-go@v7
         with:
-          go-version: "1.23.x"
+          go-version-file: lumenvec/go.mod
       - name: Install build dependencies
         run: python -m pip install -r backend/requirements-dev.txt
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
       - name: Build linux-arm64 wheel
         run: python build_wheels.py --target linux-arm64 --lumenvec-root lumenvec
       - name: Upload wheel

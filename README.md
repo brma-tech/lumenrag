@@ -60,6 +60,14 @@ Environment variables include `LUMENRAG_HOME`, `LUMENVEC_BINARY`, and
 
 ## Self-contained wheels
 
+Builds are pinned to LumenVec Community `v0.3.0-rc.1`, revision
+`ee2052930f95024305fb6be19a74acb34049893d`, in `lumenvec-release.json`.
+Clone `https://github.com/brma-tech/lumenvec-community.git` into `lumenvec/`
+and check out that revision, or pass `--lumenvec-root` pointing to a clean
+checkout of it. The builder rejects different or modified engine sources and
+records the engine revision in the build receipt. This engine remains a
+prerelease; native smoke tests are required before distribution.
+
 The builder compiles the Studio and the current LumenVec source with
 `CGO_ENABLED=0`, then creates platform wheels:
 
