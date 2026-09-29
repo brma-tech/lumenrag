@@ -86,7 +86,15 @@ def build_lumenvec(source: Path, output: Path, target: Target) -> None:
         {"CGO_ENABLED": "0", "GOOS": target.goos, "GOARCH": target.goarch}
     )
     run(
-        ["go", "build", "-trimpath", "-o", str(output), "./cmd/server"],
+        [
+            "go",
+            "build",
+            "-mod=readonly",
+            "-trimpath",
+            "-o",
+            str(output),
+            "./cmd/server",
+        ],
         source,
         environment,
     )
@@ -140,13 +148,21 @@ def main() -> int:
     root = Path(__file__).resolve().parent
     backend = root / "backend"
     frontend = root / "frontend"
-    lumenvec = (
-        args.lumenvec_root.resolve()
-        if args.lumenvec_root
-        else root.parents[1] / "lumenvec"
-    )
+    lumenvec = args.lumenvec_root.resolve() if args.lumenvec_root else root / "lumenvec"
     if not (lumenvec / "go.mod").is_file():
         raise RuntimeError(f"LumenVec source repository not found: {lumenvec}")
+
+    engine = json.loads((root / "lumenvec-release.json").read_text(encoding="utf-8"))
+    revision = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"], cwd=lumenvec, text=True
+    ).strip()
+    dirty = subprocess.check_output(
+        ["git", "status", "--porcelain"], cwd=lumenvec, text=True
+    ).strip()
+    if revision != engine["revision"] or dirty:
+        raise RuntimeError(
+            "LumenVec source must be clean and match lumenvec-release.json"
+        )
 
     selected = list(TARGETS) if args.all else (args.target or [current_target()])
     build_root = root / ".build" / "wheels"
@@ -192,7 +208,10 @@ def main() -> int:
 
     receipt_path = output_root / "build-receipt.json"
     receipt_path.write_text(
-        json.dumps({"schema_version": 1, "artifacts": receipts}, indent=2) + "\n",
+        json.dumps(
+            {"schema_version": 1, "engine": engine, "artifacts": receipts}, indent=2
+        )
+        + "\n",
         encoding="utf-8",
     )
     print(receipt_path)
