@@ -1,0 +1,136 @@
+name: LumenRAG Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  build-wheels:
+    name: Build ${{ matrix.target }} wheel
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: windows-amd64
+            runner: windows-latest
+            smoke: true
+          - target: linux-amd64
+            runner: ubuntu-24.04
+            smoke: true
+          - target: linux-arm64
+            runner: ubuntu-24.04
+            smoke: false
+          - target: macos-amd64
+            runner: macos-15-intel
+            smoke: true
+          - target: macos-arm64
+            runner: macos-14
+            smoke: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify tag, version, and main ancestry
+        shell: bash
+        run: |
+          version="$(python -c 'import tomllib; from pathlib import Path; print(tomllib.loads(Path("backend/pyproject.toml").read_text())["project"]["version"])')"
+          test "$GITHUB_REF_NAME" = "v$version"
+          git fetch origin main
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main
+      - name: Checkout pinned LumenVec engine
+        uses: actions/checkout@v4
+        with:
+          repository: brma-tech/lumenvec-community
+          ref: ee2052930f95024305fb6be19a74acb34049893d
+          path: lumenvec
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - uses: actions/setup-go@v7
+        with:
+          go-version: "1.26.x"
+          check-latest: true
+      - name: Install build dependencies
+        run: python -m pip install -r backend/requirements-dev.txt
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+      - name: Build platform wheel
+        run: python build_wheels.py --target ${{ matrix.target }} --lumenvec-root lumenvec
+      - name: Smoke test installed wheel
+        if: ${{ matrix.smoke }}
+        shell: pwsh
+        run: |
+          $wheels = @(Get-ChildItem dist/wheels -Filter '*.whl')
+          if ($wheels.Count -ne 1) { throw "Expected exactly one wheel, found $($wheels.Count)" }
+          python smoke_wheel.py $wheels[0].FullName
+      - name: Upload wheel artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lumenrag-${{ matrix.target }}
+          path: dist/wheels/*.whl
+          if-no-files-found: error
+          retention-days: 14
+
+  publish:
+    name: Publish PyPI and GitHub release
+    needs: build-wheels
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist/wheels
+          merge-multiple: true
+      - name: Verify release wheel matrix and generate checksums
+        shell: bash
+        run: |
+          python - <<'PY'
+          from hashlib import sha256
+          from pathlib import Path
+          import os
+
+          version = os.environ["GITHUB_REF_NAME"].removeprefix("v")
+          wheels = sorted(Path("dist/wheels").glob("*.whl"))
+          suffixes = {
+              "win_amd64.whl",
+              "manylinux_2_17_x86_64.whl",
+              "manylinux_2_17_aarch64.whl",
+              "macosx_11_0_x86_64.whl",
+              "macosx_11_0_arm64.whl",
+          }
+          assert len(wheels) == 5, f"expected 5 wheels, found {len(wheels)}"
+          assert all(path.name.startswith(f"lumenrag-{version}-") for path in wheels)
+          found = {suffix for suffix in suffixes if any(p.name.endswith(suffix) for p in wheels)}
+          assert found == suffixes, f"incomplete wheel matrix: {suffixes - found}"
+          sums = "".join(
+              f"{sha256(path.read_bytes()).hexdigest()}  {path.name}\n" for path in wheels
+          )
+          Path("dist/SHA256SUMS.txt").write_text(sums, encoding="ascii")
+          PY
+      - name: Publish immutable wheels to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          packages-dir: dist/wheels/
+          print-hash: true
+      - name: Create GitHub release with wheels and checksums
+        uses: softprops/action-gh-release@v2
+        with:
+          name: LumenRAG ${{ github.ref_name }}
+          generate_release_notes: true
+          files: |
+            dist/wheels/*.whl
+            dist/SHA256SUMS.txt

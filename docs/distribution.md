@@ -1,63 +1,50 @@
-# Distribuicao do LumenRAG
+# LumenRAG distribution
 
-Status: artefatos locais funcionais; publicacao nao autorizada  
-Versao: 0.1.0
+Status: release 0.1.6 prepared; publication is triggered by its reviewed main tag.
+Version: 0.1.6
 
-## Contrato do artefato
+## Package contents
 
-Cada wheel e especifica de plataforma e inclui o mesmo conjunto logico:
+Each platform wheel contains `lumenrag`, `rag_lumenvec`, the Studio build, a
+manifest with SHA-256 hashes, and the matching bundled LumenVec executable.
+The LumenRAG and LumenVec components are MIT-licensed.
 
-```text
-lumenrag + rag_lumenvec
-lumenrag/assets/manifest.json
-lumenrag/assets/bin/lumenvec[.exe]
-lumenrag/assets/studio/index.html
-lumenrag/assets/studio/assets/*
-```
+| Target | Wheel tag | Build and validation |
+| --- | --- | --- |
+| Windows amd64 | `win_amd64` | Native build and installed-wheel startup smoke test |
+| Linux amd64 | `manylinux_2_17_x86_64` | Native build and installed-wheel startup smoke test |
+| Linux arm64 | `manylinux_2_17_aarch64` | Cross-build and wheel/manifest validation |
+| macOS Intel | `macosx_11_0_x86_64` | Native build and installed-wheel startup smoke test |
+| macOS Apple Silicon | `macosx_11_0_arm64` | Native build and installed-wheel startup smoke test |
 
-O manifesto registra target, versao, entrypoint do engine, entrypoint do Studio
-e SHA-256 de todos os arquivos. O launcher falha fechado quando um asset estiver
-ausente ou alterado.
+All Go engine builds use `CGO_ENABLED=0`; the builder verifies the pinned,
+clean LumenVec source revision and hashes every packaged asset. Linux arm64 is
+cross-built on Linux amd64, so its installed runtime is not natively smoke
+tested in this workflow.
 
-## Matriz
+## Release gates and publication
 
-| Target | Tag da wheel | Build cruzado | Smoke nativo |
-| --- | --- | --- | --- |
-| Windows amd64 | `win_amd64` | passou | passou |
-| Linux amd64 | `manylinux_2_17_x86_64` | passou | pendente |
-| Linux arm64 | `manylinux_2_17_aarch64` | passou | pendente |
-| macOS Intel | `macosx_11_0_x86_64` | passou | pendente |
-| macOS Apple Silicon | `macosx_11_0_arm64` | passou | pendente |
+The reviewed source change updates every backend/API/frontend version reference
+to 0.1.6. Before publishing, CI must pass for the exact commit. The
+`.github/workflows/release.yml` workflow only accepts a semantic version tag
+whose commit is already an ancestor of `main`, and verifies that the tag agrees
+with `backend/pyproject.toml`.
 
-`CGO_ENABLED=0` remove dependencias dinamicas introduzidas pelo engine Go. Isso
-nao substitui a instalacao e o smoke em cada sistema operacional real.
+For every tag it builds all five platform wheels, runs the installed-wheel
+startup smoke test on the four native targets, validates the Linux arm64 wheel,
+and gathers the artifacts. Only when all builds and checks pass does the
+workflow upload the wheels to PyPI using the repository's `PYPI_API_TOKEN`
+secret, create `SHA256SUMS.txt`, and publish a GitHub release with the same
+wheel files and checksums. A duplicate PyPI version is not overwritten.
 
-## Gates anteriores a publicacao
+This release path publishes directly to production PyPI because that
+publication was explicitly authorized. TestPyPI is not part of this workflow.
+No package is published by a normal branch push or pull request.
 
-1. decidir e aplicar a licenca do LumenRAG e confirmar a redistribuicao do
-   LumenVec embutido;
-2. concluir revisao de marca e nome do pacote PyPI;
-3. executar testes em Python 3.11, 3.12 e 3.13 nos cinco targets;
-4. executar smoke nativo de startup, ingestao, busca, restart e shutdown;
-5. produzir SBOM e executar scan de dependencias e malware;
-6. assinar wheels e registrar proveniencia do build;
-7. testar instalacao via `pipx` e `uvx` em maquinas limpas;
-8. obter autorizacao explicita de publicacao;
-9. publicar primeiro em TestPyPI;
-10. validar TestPyPI antes de promover ao PyPI.
+## Rollback and recovery
 
-O builder nao possui comando de upload e nao recebe tokens de registry. Essa
-separacao impede que um build local publique acidentalmente um artefato.
-
-## Pipeline de CI
-
-O workflow `.github/workflows/ci.yml` executa lint, testes Python nas versões
-3.11--3.13, build do frontend e auditoria npm em todo push e pull request.
-Quando a variável de repositório `LUMENVEC_REPOSITORY` estiver configurada nas
-Actions do GitHub, ele também faz checkout do engine, gera os wheels nativos de
-Windows, Linux e macOS, testa o wheel em cada runner e publica os artefatos
-apenas como artifacts da execução. A variável opcional `LUMENVEC_REF` fixa uma
-tag ou commit do engine para builds reproduzíveis.
-
-O pipeline não publica no PyPI. A publicação continua sendo um gate manual após
-licença, proveniência, SBOM, assinatura e autorização explícita.
+PyPI files for an existing version are immutable and are not deleted or
+overwritten by this pipeline. If a published wheel is defective, stop promotion
+and publish a corrected patch version; mark the defective PyPI release
+yanked with an explicit reason. GitHub release assets can be replaced, so retain
+the published SHA256 checksums and PyPI file digests as the canonical evidence.
