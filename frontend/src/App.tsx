@@ -356,6 +356,13 @@ function App() {
 
   const ingestFiles = async () => {
     if (!selectedFiles?.length) return;
+    const maxFiles = operationalStatus?.limits?.max_upload_files;
+    if (!maxFiles || selectedFiles.length > maxFiles) {
+      setError(maxFiles
+        ? tr(language, `Select at most ${maxFiles} files per upload.`, `Selecione no máximo ${maxFiles} arquivos por envio.`)
+        : tr(language, "Upload limits are still loading. Try again shortly.", "Os limites de envio ainda estão carregando. Tente novamente em instantes."));
+      return;
+    }
     setError("");
     setNotice("");
     setLoading(true);
@@ -454,8 +461,8 @@ function App() {
 
   return (
     <main className={`${tab === "chat" ? "lg:h-screen lg:overflow-hidden" : "min-h-screen"} text-slate-100`}>
-      <div className={`mx-auto flex w-full max-w-[1500px] flex-col lg:flex-row ${tab === "chat" ? "lg:h-screen lg:overflow-hidden" : "min-h-screen"}`}>
-        <aside className={`relative overflow-x-hidden border-b border-[#3a4749] bg-[#182124]/95 p-4 backdrop-blur-xl transition-[width] duration-300 lg:border-b-0 lg:border-r ${tab === "chat" ? "lg:h-screen lg:overflow-y-auto" : ""} ${sidebarCollapsed ? "lg:w-[82px]" : "lg:w-[320px]"}`}>
+      <div className={`flex w-full min-w-0 flex-col lg:flex-row ${tab === "chat" ? "lg:h-screen lg:overflow-hidden" : "min-h-screen"}`}>
+        <aside className={`relative shrink-0 overflow-x-hidden border-b border-[#3a4749] bg-[#182124]/95 p-4 backdrop-blur-xl transition-[width] duration-300 lg:border-b-0 lg:border-r ${tab === "chat" ? "lg:h-screen lg:overflow-y-auto" : ""} ${sidebarCollapsed ? "lg:w-[82px]" : "lg:w-[288px] 2xl:w-[304px]"}`}>
           <button
             type="button"
             className={`icon-btn absolute z-10 hidden h-5 w-5 lg:inline-flex ${
@@ -569,7 +576,7 @@ function App() {
           </div>
         </aside>
 
-        <section className={`flex flex-1 flex-col bg-slate-950/35 ${tab === "chat" ? "min-h-0 lg:h-screen lg:overflow-hidden" : "min-h-screen"}`}>
+        <section className={`flex min-w-0 flex-1 flex-col bg-slate-950/35 ${tab === "chat" ? "min-h-0 lg:h-screen lg:overflow-hidden" : "min-h-screen"}`}>
           <header className="sticky top-0 z-20 shrink-0 border-b border-[#263031] bg-[#080b0c]/88 px-4 py-3 backdrop-blur-xl">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex rounded-lg border border-slate-800 bg-slate-900/80 p-1">
@@ -652,6 +659,7 @@ function App() {
               selectedFiles={selectedFiles}
               ingestResults={ingestResults}
               onSelectFiles={setSelectedFiles}
+              maxUploadFiles={operationalStatus?.limits?.max_upload_files ?? null}
               onIngest={ingestFiles}
               onDelete={deleteDocument}
               onClear={clearCollection}
@@ -868,7 +876,7 @@ function OperationsView({
     : [];
 
   return (
-    <div className="mx-auto w-full max-w-6xl flex-1 space-y-5 p-4 lg:p-6">
+    <div className="studio-page flex-1 space-y-5">
       <section className="rounded-xl border border-slate-800 bg-slate-900/70 p-5 shadow-[0_18px_52px_rgba(2,6,23,0.22)]">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
@@ -914,8 +922,8 @@ function OperationsView({
         <DashboardStat label={tr(language, "Version", "Versão")} value={status?.service.version ?? "-"} detail={status?.service.name ?? tr(language, "service", "serviço")} compact />
       </section>
 
-      <section className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
-        <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-5 shadow-[0_18px_52px_rgba(2,6,23,0.22)]">
+      <section className="grid min-w-0 gap-5">
+        <div className="min-w-0 rounded-xl border border-slate-800 bg-slate-900/70 p-5 shadow-[0_18px_52px_rgba(2,6,23,0.22)]">
           <h2 className="text-base font-semibold text-slate-50">Readiness</h2>
           <div className="mt-4 space-y-3">
             {status ? (
@@ -930,14 +938,14 @@ function OperationsView({
           </div>
         </div>
 
-        <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-5 shadow-[0_18px_52px_rgba(2,6,23,0.22)]">
+        <div className="min-w-0 rounded-xl border border-slate-800 bg-slate-900/70 p-5 shadow-[0_18px_52px_rgba(2,6,23,0.22)]">
           <h2 className="text-base font-semibold text-slate-50">{tr(language, "Local artifacts", "Artefatos locais")}</h2>
           <div className="mt-4 divide-y divide-slate-800 overflow-hidden rounded-lg border border-slate-800">
             {storageEntries.length ? (
               storageEntries.map(([label, value]) => (
-                <div key={label} className="grid gap-2 bg-slate-950/35 p-3 md:grid-cols-[120px_1fr]">
-                  <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{label}</div>
-                  <div className="min-w-0 break-all text-sm text-slate-300">{value}</div>
+                <div key={label} className="grid min-w-0 gap-2 bg-slate-950/35 p-4 md:grid-cols-[140px_minmax(0,1fr)] md:items-start md:gap-4">
+                  <div className="text-sm font-medium text-slate-400">{label}</div>
+                  <div className="min-w-0 whitespace-normal font-mono text-sm leading-6 text-slate-200 [overflow-wrap:anywhere]">{value}</div>
                 </div>
               ))
             ) : (
@@ -994,7 +1002,7 @@ function DashboardView({
     .filter((provider) => provider.id !== "local-openai" && !providerConfig[provider.id]?.has_api_key);
 
   return (
-    <div className="mx-auto w-full max-w-6xl flex-1 space-y-5 p-4 lg:p-6">
+    <div className="studio-page flex-1 space-y-5">
       <section className={`grid gap-4 md:grid-cols-2 ${researchMode ? "xl:grid-cols-4" : "xl:grid-cols-3"}`}>
         <DashboardStat label={tr(language, "Documents", "Documentos")} value={documents.length} detail={`${totalChunks} chunks`} />
         <DashboardStat label={tr(language, "Conversations", "Conversas")} value={messages.length} detail={config.session_id} />
@@ -1119,7 +1127,9 @@ function LumenVecResearchPreview({
   const totalChunks = documents.reduce((sum, document) => sum + document.chunks_indexed, 0);
   const isHealthy = health === "ok" || status?.ready === true;
   const [graph, setGraph] = React.useState<VectorGraphData | null>(null);
+  const [graphLoading, setGraphLoading] = React.useState(true);
   const [graphError, setGraphError] = React.useState("");
+  const [graphRetry, setGraphRetry] = React.useState(0);
   const [selectedNode, setSelectedNode] = React.useState<VectorGraphNode | null>(null);
   const displayedNodes = compact ? (graph?.nodes.slice(0, 9) ?? []) : (graph?.nodes ?? []);
   const displayedIndexes = new Set(displayedNodes.map((node) => node.index));
@@ -1129,20 +1139,29 @@ function LumenVecResearchPreview({
 
   React.useEffect(() => {
     let active = true;
+    const controller = new AbortController();
+    setGraph(null);
     setGraphError("");
+    setGraphLoading(true);
+    setSelectedNode(null);
     api<VectorGraphData>(
-      `/api/vector-map?collection=${encodeURIComponent(config.collection)}&base_url=${encodeURIComponent(config.base_url)}&limit=60`
+      `/api/vector-map?collection=${encodeURIComponent(config.collection)}&base_url=${encodeURIComponent(config.base_url)}&limit=60`,
+      { signal: controller.signal }
     )
       .then((payload) => {
         if (active) setGraph(payload);
       })
       .catch((exc: Error) => {
-        if (active) setGraphError(exc.message);
+        if (active && !controller.signal.aborted) setGraphError(exc.message);
+      })
+      .finally(() => {
+        if (active) setGraphLoading(false);
       });
     return () => {
       active = false;
+      controller.abort();
     };
-  }, [config.base_url, config.collection, documents]);
+  }, [config.base_url, config.collection, documents, graphRetry]);
 
   return (
     <section className="overflow-hidden rounded-xl border border-teal-300/15 bg-slate-900/70 shadow-[0_18px_52px_rgba(2,6,23,0.20)]">
@@ -1169,8 +1188,8 @@ function LumenVecResearchPreview({
         <div className="min-w-0 border-b border-slate-800 p-4 xl:border-b-0 xl:border-r">
           {graph?.nodes.length ? (
             <svg
-              viewBox="0 0 620 280"
-              className={`${compact ? "h-[190px]" : "h-[340px]"} w-full rounded-lg bg-slate-950/25`}
+              viewBox={compact ? "0 0 1000 280" : "0 0 620 280"}
+              className={`${compact ? "aspect-[25/7] h-auto" : "h-[340px]"} w-full rounded-lg bg-slate-950/25`}
               role="img"
               aria-label={tr(language, "Semantic graph of indexed vector chunks and cosine distances", "Grafo semântico dos chunks vetoriais indexados e distâncias cosseno")}
             >
@@ -1178,9 +1197,9 @@ function LumenVecResearchPreview({
                 const source = graph.nodes[edge.source];
                 const target = graph.nodes[edge.target];
                 if (!source || !target) return null;
-                const x1 = 45 + source.x * 530;
+                const x1 = 45 + source.x * (compact ? 910 : 530);
                 const y1 = 28 + source.y * 224;
-                const x2 = 45 + target.x * 530;
+                const x2 = 45 + target.x * (compact ? 910 : 530);
                 const y2 = 28 + target.y * 224;
                 return (
                   <g key={`${source.id}-${target.id}`}>
@@ -1190,23 +1209,35 @@ function LumenVecResearchPreview({
                 );
               })}
               {displayedNodes.map((node) => {
-                const x = 45 + node.x * 530;
+                const x = 45 + node.x * (compact ? 910 : 530);
                 const y = 28 + node.y * 224;
                 const selected = selectedNode?.id === node.id;
                 const hue = [...node.document_name].reduce((sum, char) => sum + char.charCodeAt(0), 0) % 120 + 155;
                 return (
                   <g key={node.id} role="button" tabIndex={0} className="cursor-pointer" onClick={() => !compact && setSelectedNode(node)} onKeyDown={(event) => event.key === "Enter" && !compact && setSelectedNode(node)}>
-                    <circle cx={x} cy={y} r={selected ? 15 : 11} fill={`hsl(${hue} 58% 38%)`} fillOpacity="0.88" stroke={selected ? "#f8fafc" : `hsl(${hue} 70% 68%)`} strokeWidth={selected ? 2 : 1} />
+                    <circle cx={x} cy={y} r={15} fill="transparent" />
+                    <circle cx={x} cy={y} r={selected ? 11 : 8} fill={`hsl(${hue} 58% 38%)`} fillOpacity="0.88" stroke={selected ? "#f8fafc" : `hsl(${hue} 70% 68%)`} strokeWidth={selected ? 2 : 1} />
                     <text x={x} y={y + 3} fill="#f8fafc" fontSize="7" fontWeight="700" textAnchor="middle">{node.chunk_index}</text>
-                    <text x={x} y={y + 24} fill="#94a3b8" fontSize="7.5" textAnchor="middle">{node.document_name.length > 14 ? `${node.document_name.slice(0, 14)}…` : node.document_name}</text>
+                    <text x={x} y={y + 21} fill="#94a3b8" fontSize="7.5" textAnchor="middle">{node.document_name.length > 14 ? `${node.document_name.slice(0, 14)}…` : node.document_name}</text>
                     <title>{`${node.document_name} · chunk ${node.chunk_index}`}</title>
                   </g>
                 );
               })}
             </svg>
           ) : (
-            <div className="flex h-[270px] items-center justify-center text-center text-sm text-slate-500">
-              {graphError || tr(language, "Loading semantic vector graph...", "Carregando grafo vetorial semântico...")}
+            <div className="flex h-[270px] flex-col items-center justify-center gap-3 px-6 text-center text-sm text-slate-400">
+              {graphLoading ? (
+                <span>{tr(language, "Loading semantic vector graph...", "Carregando grafo vetorial semântico...")}</span>
+              ) : graphError ? (
+                <>
+                  <span role="alert">{graphError}</span>
+                  <button className="secondary-btn min-h-8 px-3 py-1 text-xs" onClick={() => setGraphRetry((current) => current + 1)}>
+                    {tr(language, "Retry", "Tentar novamente")}
+                  </button>
+                </>
+              ) : (
+                <span>{tr(language, "No indexed chunks in this collection yet. Upload and index a document to build the graph.", "Ainda não há chunks indexados nesta coleção. Envie e indexe um documento para gerar o grafo.")}</span>
+              )}
             </div>
           )}
           {!compact && <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[10px] text-slate-500">
@@ -1254,6 +1285,7 @@ function MiniMonitor({ label, value }: { label: string; value: React.ReactNode }
 
 
 function IngestView({
+  maxUploadFiles,
   documents,
   loading,
   selectedFiles,
@@ -1267,6 +1299,7 @@ function IngestView({
   documents: DocumentSummary[];
   loading: boolean;
   selectedFiles: FileList | null;
+  maxUploadFiles: number | null;
   ingestResults: IngestResult[];
   onSelectFiles: (files: FileList | null) => void;
   onIngest: () => void;
@@ -1275,7 +1308,7 @@ function IngestView({
   language: Language;
 }) {
   return (
-    <div className="mx-auto w-full max-w-6xl flex-1 space-y-5 p-4 lg:p-6">
+    <div className="studio-page flex-1 space-y-5">
       <section className="rounded-xl border border-slate-800 bg-slate-900/70 p-5 shadow-[0_18px_52px_rgba(2,6,23,0.25)]">
         <div className="mb-4 flex flex-col gap-1">
           <div className="flex items-center gap-2 text-sm font-semibold text-slate-100">
@@ -1294,8 +1327,15 @@ function IngestView({
           className="block w-full rounded-lg border border-dashed border-slate-700 bg-slate-950/55 p-4 text-sm text-slate-300 file:mr-4 file:rounded-md file:border-0 file:bg-slate-800 file:px-3 file:py-2 file:text-sm file:font-medium file:text-slate-100 hover:border-teal-300/45"
         />
         <div className="mt-3 flex items-center justify-between gap-3">
-          <div className="text-xs text-slate-500">{tr(language, `${selectedFiles?.length || 0} selected file(s)`, `${selectedFiles?.length || 0} arquivo(s) selecionados`)}</div>
-          <button className="primary-btn" onClick={onIngest} disabled={loading || !selectedFiles?.length}>
+          <div className="text-xs text-slate-400" aria-live="polite">
+            {maxUploadFiles === null
+              ? tr(language, "Loading upload limits...", "Carregando limites de envio...")
+              : tr(language, `${selectedFiles?.length || 0} / ${maxUploadFiles} files per upload`, `${selectedFiles?.length || 0} / ${maxUploadFiles} arquivos por envio`)}
+            {maxUploadFiles !== null && (selectedFiles?.length || 0) > maxUploadFiles && (
+              <p className="mt-1 text-amber-300" role="alert">{tr(language, "Select fewer files to continue.", "Selecione menos arquivos para continuar.")}</p>
+            )}
+          </div>
+          <button className="primary-btn" onClick={onIngest} disabled={loading || !selectedFiles?.length || maxUploadFiles === null || selectedFiles.length > maxUploadFiles}>
             <Send className="h-4 w-4" />
             {loading ? tr(language, "Indexing...", "Indexando...") : tr(language, "Index", "Indexar")}
           </button>
@@ -1433,7 +1473,7 @@ function EvalView({
   const weakRows = evalRows.filter(isWeakEvalRow);
 
   return (
-    <div className="mx-auto w-full max-w-6xl flex-1 space-y-5 p-4 lg:p-6">
+    <div className="studio-page flex-1 space-y-5">
       <section className="grid gap-3 md:grid-cols-4">
         <DashboardStat
           label={tr(language, "Latest run", "Última rodada")}

@@ -4,6 +4,7 @@ from typing import Any
 
 from fastapi import APIRouter, File, Form, Query, UploadFile
 
+from rag_lumenvec.api.upload_route import UploadRoute
 from rag_lumenvec.core.config import (
     DEFAULT_BASE_URL,
     DEFAULT_COLLECTION,
@@ -30,7 +31,7 @@ from rag_lumenvec.services.vector_graph import build_vector_graph
 
 from .errors import api_error
 
-router = APIRouter()
+router = APIRouter(route_class=UploadRoute)
 
 
 @router.get("/collections")

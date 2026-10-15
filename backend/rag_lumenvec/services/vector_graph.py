@@ -11,9 +11,16 @@ def build_vector_graph(
     client: LumenVecClient, collection: str, limit: int = 60
 ) -> dict[str, Any]:
     records = load_chunk_records(collection)
-    vectors = [
-        item for item in client.list_vectors(limit * 3) if item["id"] in records
-    ][:limit]
+    collection_prefix = f"{collection}-"
+    vectors = []
+    for item in client.iter_vectors(
+        200, after=collection_prefix, stop_after_prefix=collection_prefix
+    ):
+        if item["id"] not in records:
+            continue
+        vectors.append(item)
+        if len(vectors) == limit:
+            break
     if not vectors:
         return {"nodes": [], "edges": [], "sampled": 0, "dimension": 0}
 

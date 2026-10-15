@@ -75,11 +75,15 @@ def operational_status(
     return {
         "service": {
             "name": "LumenRAG",
-            "version": "0.1.6",
+            "version": "0.1.7",
             "base_url": base_url,
             "collection": collection,
         },
         "ready": all(check["ok"] for check in checks),
+        "limits": {
+            "max_upload_files": config.MAX_UPLOAD_FILES,
+            "max_upload_bytes": config.MAX_UPLOAD_BYTES,
+        },
         "checks": checks,
         "metrics": {
             "collections": len(list_collections()),

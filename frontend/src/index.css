@@ -105,6 +105,13 @@ select:disabled {
 }
 
 @layer components {
+  .studio-page {
+    width: 100%;
+    min-width: 0;
+    margin-inline: auto;
+    padding: clamp(1rem, 1.5vw, 2rem);
+  }
+
   .input {
     @apply w-full rounded-lg border border-slate-700/80 bg-slate-950/60 px-3 py-2.5 text-sm text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] outline-none transition duration-200 placeholder:text-slate-500 focus:border-teal-300/70 focus:bg-slate-950 focus:shadow-[0_0_0_3px_rgba(45,212,191,0.10)] disabled:cursor-not-allowed disabled:opacity-45;
   }

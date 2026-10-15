@@ -114,6 +114,7 @@ export interface StatusCheck {
 }
 
 export interface OperationalStatus {
+  limits: { max_upload_files: number; max_upload_bytes: number };
   service: {
     name: string;
     version: string;

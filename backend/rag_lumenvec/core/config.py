@@ -15,7 +15,9 @@ DEFAULT_CHAT_MODEL = os.getenv("RAG_CHAT_MODEL", "gpt-4.1-mini")
 DEFAULT_DIMENSIONS = int(os.getenv("RAG_EMBED_DIMENSIONS", "256"))
 DEFAULT_TOP_K = int(os.getenv("RAG_TOP_K", "5"))
 DEFAULT_CONTEXT_BUDGET = int(os.getenv("RAG_CONTEXT_BUDGET", "6000"))
-MAX_UPLOAD_FILES = int(os.getenv("LUMENRAG_MAX_UPLOAD_FILES", "10"))
+MAX_UPLOAD_FILES = int(os.getenv("LUMENRAG_MAX_UPLOAD_FILES", "2000"))
+if MAX_UPLOAD_FILES < 1:
+    raise ValueError("LUMENRAG_MAX_UPLOAD_FILES must be a positive integer.")
 MAX_UPLOAD_BYTES = int(os.getenv("LUMENRAG_MAX_UPLOAD_BYTES", str(25 * 1024 * 1024)))
 MAX_QUESTIONS_BYTES = int(os.getenv("LUMENRAG_MAX_QUESTIONS_BYTES", str(256 * 1024)))
 
