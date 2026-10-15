@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import json
 import os
+from collections.abc import Iterator
 from typing import Any
 from urllib import error, request
+from urllib.parse import urlencode
 
 from rag_lumenvec.core.config import DEFAULT_BASE_URL
 from rag_lumenvec.models import APIError
@@ -88,16 +90,83 @@ class LumenVecClient:
         return normalize_search_results(json.loads(body.decode("utf-8")))
 
     def list_vectors(self, limit: int = 80) -> list[dict[str, Any]]:
-        body = self._request("GET", f"/vectors?limit={max(1, min(limit, 200))}")
+        items, _ = self._list_vectors_page(limit)
+        return items
+
+    def iter_vectors(
+        self,
+        limit: int = 80,
+        *,
+        after: str | None = None,
+        stop_after_prefix: str | None = None,
+    ) -> Iterator[dict[str, Any]]:
+        page_limit = max(1, min(limit, 200))
+        cursor: str | None = None
+        seen_cursors: set[str] = set()
+        first_page = True
+
+        while True:
+            params = {"limit": page_limit}
+            if cursor:
+                params["cursor"] = cursor
+            elif first_page and after:
+                params["after"] = after
+            body = self._request("GET", f"/vectors?{urlencode(params)}")
+            payload = json.loads(body.decode("utf-8"))
+            legacy_response = isinstance(payload, list)
+
+            # Older LumenVec APIs return a bare vector list and do not expose a
+            # continuation cursor. If they ignore `after`, retry from the start
+            # so the caller can still find its IDs in the legacy response.
+            if isinstance(payload, list) and first_page and after:
+                body = self._request(
+                    "GET", f"/vectors?{urlencode({'limit': page_limit})}"
+                )
+                payload = json.loads(body.decode("utf-8"))
+                legacy_response = isinstance(payload, list)
+
+            items, next_cursor = self._parse_vector_page(payload)
+            for item in items:
+                if (
+                    stop_after_prefix
+                    and not legacy_response
+                    and not item["id"].startswith(stop_after_prefix)
+                ):
+                    return
+                yield item
+
+            if not next_cursor:
+                return
+            if next_cursor in seen_cursors:
+                raise APIError("LumenVec returned a repeated vector-list cursor")
+            seen_cursors.add(next_cursor)
+            cursor = next_cursor
+            first_page = False
+
+    def _list_vectors_page(
+        self, limit: int, *, cursor: str | None = None, after: str | None = None
+    ) -> tuple[list[dict[str, Any]], str | None]:
+        params = {"limit": max(1, min(limit, 200))}
+        if cursor:
+            params["cursor"] = cursor
+        elif after:
+            params["after"] = after
+        body = self._request("GET", f"/vectors?{urlencode(params)}")
         payload = json.loads(body.decode("utf-8"))
-        items = (
-            payload.get("vectors", payload)
-            if isinstance(payload, dict)
-            else payload
-        )
+        items, next_cursor = self._parse_vector_page(payload)
+        return items, next_cursor
+
+    @staticmethod
+    def _parse_vector_page(payload: Any) -> tuple[list[dict[str, Any]], str | None]:
+        if isinstance(payload, dict):
+            items = payload.get("vectors", [])
+            next_cursor = payload.get("next_cursor")
+        else:
+            items = payload
+            next_cursor = None
         if not isinstance(items, list):
-            return []
-        return [
+            return [], None
+        vectors = [
             {
                 "id": str(item["id"]),
                 "values": [float(value) for value in item["values"]],
@@ -107,6 +176,7 @@ class LumenVecClient:
             and item.get("id")
             and isinstance(item.get("values"), list)
         ]
+        return vectors, str(next_cursor) if next_cursor else None
 
     def delete_vector(self, collection: str, vector_id: str) -> None:
         safe_id = quote_path(vector_id)

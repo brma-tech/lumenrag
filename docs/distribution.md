@@ -1,7 +1,7 @@
 # LumenRAG distribution
 
-Status: release 0.1.6 prepared; publication is triggered by its reviewed main tag.
-Version: 0.1.6
+Status: release 0.1.7 prepared; publication is triggered by its reviewed main tag.
+Version: 0.1.7
 
 ## Package contents
 
@@ -25,7 +25,7 @@ tested in this workflow.
 ## Release gates and publication
 
 The reviewed source change updates every backend/API/frontend version reference
-to 0.1.6. Before publishing, CI must pass for the exact commit. The
+to 0.1.7. Before publishing, CI must pass for the exact commit. The
 `.github/workflows/release.yml` workflow only accepts a semantic version tag
 whose commit is already an ancestor of `main`, and verifies that the tag agrees
 with `backend/pyproject.toml`.
