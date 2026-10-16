@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 35 35" fill="none">
+  <defs><linearGradient id="lumen" x1="17.5" y1="4" x2="17.5" y2="31" gradientUnits="userSpaceOnUse"><stop stop-color="#56d8e4"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs>
+  <rect x="12" y="4" width="11" height="27" rx="7" fill="url(#lumen)" transform="rotate(30 17.5 17.5)"/>
+  <rect x="12" y="4" width="11" height="27" rx="7" fill="url(#lumen)" opacity=".72" transform="rotate(90 17.5 17.5)"/>
+  <rect x="12" y="4" width="11" height="27" rx="7" fill="url(#lumen)" opacity=".48" transform="rotate(150 17.5 17.5)"/>
+</svg>

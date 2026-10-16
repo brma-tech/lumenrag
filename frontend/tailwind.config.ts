@@ -6,26 +6,26 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        sans: ["Arial", "Helvetica", "sans-serif"],
       },
       colors: {
-        surface: "#101114",
-        panel: "#181A1F",
-        border: "#2B2F38",
-        // Softer graphite/slate surfaces inspired by the dashboard reference.
-        // Accent colors (teal, violet, amber, etc.) remain unchanged.
+        surface: "#090811",
+        panel: "#11101b",
+        border: "#2b2838",
+        // Shared LumenVec identity; semantic warning/error colors stay distinct.
+        teal: { 100: "#d6f7fa", 200: "#a8edf3", 300: "#56d8e4", 400: "#37becd", 500: "#2199aa" },
         slate: {
-          50: "#f2f3f6",
-          100: "#e7e9ee",
-          200: "#d5d8e0",
-          300: "#b7bdc9",
-          400: "#9ba3b2",
-          500: "#7f8798",
-          600: "#626b7d",
-          700: "#484f60",
-          800: "#373d4c",
-          900: "#2f3442",
-          950: "#282d3a",
+          50: "#f5f0e9",
+          100: "#eee9f4",
+          200: "#d9d4e4",
+          300: "#c1bbd0",
+          400: "#aaa6b8",
+          500: "#928bA4",
+          600: "#686078",
+          700: "#3c354d",
+          800: "#2b2838",
+          900: "#171525",
+          950: "#090811",
         },
       },
     },

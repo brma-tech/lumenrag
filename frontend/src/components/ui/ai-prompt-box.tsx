@@ -31,11 +31,11 @@ const styles = `
     background: transparent;
   }
   textarea::-webkit-scrollbar-thumb {
-    background-color: #475569;
+    background-color: #3c354d;
     border-radius: 3px;
   }
   textarea::-webkit-scrollbar-thumb:hover {
-    background-color: #64748b;
+    background-color: #686078;
   }
 `;
 
@@ -145,7 +145,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "default", size = "default", ...props }, ref) => {
     const variantClasses = {
-      default: "bg-teal-300 hover:bg-teal-200 text-slate-950",
+      default: "bg-violet-500 hover:bg-violet-400 text-white",
       outline: "border border-slate-700 bg-transparent hover:bg-slate-800",
       ghost: "bg-transparent hover:bg-slate-800",
     };
@@ -685,7 +685,7 @@ export const PromptInputBox = React.forwardRef<HTMLDivElement, PromptInputBoxPro
                   isRecording
                     ? "bg-transparent hover:bg-slate-800 text-red-500 hover:text-red-400"
                     : hasContent
-                      ? "bg-teal-300 hover:bg-teal-200 text-slate-950"
+                      ? "bg-violet-500 hover:bg-violet-400 text-white"
                       : "bg-transparent hover:bg-slate-800 text-slate-400 hover:text-slate-100"
                 )}
                 onClick={() => {
