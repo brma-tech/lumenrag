@@ -462,7 +462,7 @@ function App() {
   return (
     <main className={`${tab === "chat" ? "lg:h-screen lg:overflow-hidden" : "min-h-screen"} text-slate-100`}>
       <div className={`flex w-full min-w-0 flex-col lg:flex-row ${tab === "chat" ? "lg:h-screen lg:overflow-hidden" : "min-h-screen"}`}>
-        <aside className={`relative shrink-0 overflow-x-hidden border-b border-[#3a4749] bg-[#182124]/95 p-4 backdrop-blur-xl transition-[width] duration-300 lg:border-b-0 lg:border-r ${tab === "chat" ? "lg:h-screen lg:overflow-y-auto" : ""} ${sidebarCollapsed ? "lg:w-[82px]" : "lg:w-[288px] 2xl:w-[304px]"}`}>
+        <aside className={`relative shrink-0 overflow-x-hidden border-b border-slate-800 bg-[#11101b]/95 p-4 backdrop-blur-xl transition-[width] duration-300 lg:border-b-0 lg:border-r ${tab === "chat" ? "lg:h-screen lg:overflow-y-auto" : ""} ${sidebarCollapsed ? "lg:w-[82px]" : "lg:w-[288px] 2xl:w-[304px]"}`}>
           <button
             type="button"
             className={`icon-btn absolute z-10 hidden h-5 w-5 lg:inline-flex ${
@@ -478,17 +478,11 @@ function App() {
           </button>
           <div className={`pb-5 ${sidebarCollapsed ? "lg:pb-14" : ""}`}>
             <div className={`mb-5 flex items-center gap-3 ${sidebarCollapsed ? "lg:justify-center" : ""}`}>
-              <div className="brand-orbit flex h-12 w-12 items-center justify-center rounded-2xl border border-amber-200/25 bg-slate-950/55 p-0.5">
-                <img
-                  src="/lumenvec-logo.png"
-                  alt="LumenVec"
-                  className="h-full w-full object-contain"
-                />
-              </div>
+              <span className="brand-mark" role="img" aria-label="LumenVec"><i /><i /><i /></span>
               <div className={sidebarCollapsed ? "lg:hidden" : ""}>
                 <div className="flex items-center gap-2">
                   <h1 className="text-lg font-semibold tracking-[-0.03em] text-slate-50">LumenRAG</h1>
-                  <span className="rounded border border-amber-300/30 bg-amber-300/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-amber-200">Alpha</span>
+                  <span className="rounded border border-violet-400/30 bg-violet-400/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.14em] text-violet-200">Alpha</span>
                 </div>
                 <p className="text-xs text-slate-400">RAG Studio · powered by LumenVec</p>
               </div>
@@ -533,7 +527,7 @@ function App() {
             </button>
           </div>
 
-          <div className={`space-y-3 rounded-xl border border-slate-800 bg-slate-900/55 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] ${sidebarCollapsed ? "lg:hidden" : ""}`}>
+          <div className={`space-y-3 rounded-xl bg-transparent p-1 ${sidebarCollapsed ? "lg:hidden" : ""}`}>
             <div className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
               <SlidersHorizontal className="h-3.5 w-3.5 text-teal-300" />
               {tr(language, "Environment", "Ambiente")}
@@ -577,9 +571,9 @@ function App() {
         </aside>
 
         <section className={`flex min-w-0 flex-1 flex-col bg-slate-950/35 ${tab === "chat" ? "min-h-0 lg:h-screen lg:overflow-hidden" : "min-h-screen"}`}>
-          <header className="sticky top-0 z-20 shrink-0 border-b border-[#263031] bg-[#080b0c]/88 px-4 py-3 backdrop-blur-xl">
+          <header className="sticky top-0 z-20 shrink-0 border-b border-slate-800 bg-[#090811]/90 px-4 py-3 backdrop-blur-xl">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex rounded-lg border border-slate-800 bg-slate-900/80 p-1">
+              <div className="flex flex-wrap rounded-lg bg-transparent p-1">
                 <TabButton active={tab === "dashboard"} onClick={() => setTab("dashboard")} icon={<BarChart3 className="h-4 w-4" />}>{t(language, "overview")}</TabButton>
                 <TabButton active={tab === "chat"} onClick={() => setTab("chat")} icon={<MessageSquare className="h-4 w-4" />}>{t(language, "chat")}</TabButton>
                 <TabButton active={tab === "ingest"} onClick={() => setTab("ingest")} icon={<Layers3 className="h-4 w-4" />}>{t(language, "knowledge")}</TabButton>
@@ -768,7 +762,7 @@ function AiSettingsModal({
 
         <div className="max-h-[calc(90vh-120px)] space-y-4 overflow-y-auto p-4">
           <section className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-3 rounded-lg border border-slate-800 bg-slate-900/60 p-3">
+            <div className="space-y-3 rounded-lg bg-slate-900/60 p-3">
               <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Chat</div>
               <Field label="Provider">
                 <ProviderPicker
@@ -797,7 +791,7 @@ function AiSettingsModal({
               </Field>
             </div>
 
-            <div className="space-y-3 rounded-lg border border-slate-800 bg-slate-900/60 p-3">
+            <div className="space-y-3 rounded-lg bg-slate-900/60 p-3">
               <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Embeddings</div>
               <Field label="Provider">
                 <ProviderPicker
@@ -877,7 +871,7 @@ function OperationsView({
 
   return (
     <div className="studio-page flex-1 space-y-5">
-      <section className="rounded-xl border border-slate-800 bg-slate-900/70 p-5 shadow-[0_18px_52px_rgba(2,6,23,0.22)]">
+      <section className="rounded-xl bg-slate-900/70 p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <div className="flex items-center gap-2 text-base font-semibold text-slate-50">
@@ -923,7 +917,7 @@ function OperationsView({
       </section>
 
       <section className="grid min-w-0 gap-5">
-        <div className="min-w-0 rounded-xl border border-slate-800 bg-slate-900/70 p-5 shadow-[0_18px_52px_rgba(2,6,23,0.22)]">
+        <div className="min-w-0 rounded-xl bg-slate-900/70 p-5">
           <h2 className="text-base font-semibold text-slate-50">Readiness</h2>
           <div className="mt-4 space-y-3">
             {status ? (
@@ -931,14 +925,14 @@ function OperationsView({
                 <ReadinessItem key={check.id} ok={check.ok} label={check.label} value={check.detail} />
               ))
             ) : (
-              <div className="rounded-lg border border-slate-800 bg-slate-950/35 p-4 text-sm text-slate-500">
+              <div className="rounded-lg bg-slate-950/20 p-4 text-sm text-slate-500">
                 {tr(language, "Operational status has not been loaded yet.", "Status operacional ainda não carregado.")}
               </div>
             )}
           </div>
         </div>
 
-        <div className="min-w-0 rounded-xl border border-slate-800 bg-slate-900/70 p-5 shadow-[0_18px_52px_rgba(2,6,23,0.22)]">
+        <div className="min-w-0 rounded-xl bg-slate-900/70 p-5">
           <h2 className="text-base font-semibold text-slate-50">{tr(language, "Local artifacts", "Artefatos locais")}</h2>
           <div className="mt-4 divide-y divide-slate-800 overflow-hidden rounded-lg border border-slate-800">
             {storageEntries.length ? (
@@ -1011,7 +1005,7 @@ function DashboardView({
       </section>
 
       <section className="grid gap-5 xl:grid-cols-[1.15fr_0.85fr]">
-        <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-5 shadow-[0_18px_52px_rgba(2,6,23,0.22)]">
+        <div className="rounded-xl bg-slate-900/70 p-5">
           <div className="mb-4 flex items-start justify-between gap-3">
             <div>
               <h2 className="text-base font-semibold text-slate-50">{tr(language, "Workflow", "Fluxo de trabalho")}</h2>
@@ -1052,7 +1046,7 @@ function DashboardView({
           </div>
         </div>
 
-        <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-5 shadow-[0_18px_52px_rgba(2,6,23,0.22)]">
+        <div className="rounded-xl bg-slate-900/70 p-5">
           <h2 className="text-base font-semibold text-slate-50">{tr(language, "Readiness", "Prontidão")}</h2>
           <div className="mt-4 space-y-3">
             <ReadinessItem ok={!['error', 'erro', 'not checked', 'nao verificado'].includes(health)} label={tr(language, "LumenVec reachable", "LumenVec acessível")} value={health} />
@@ -1164,7 +1158,7 @@ function LumenVecResearchPreview({
   }, [config.base_url, config.collection, documents, graphRetry]);
 
   return (
-    <section className="overflow-hidden rounded-xl border border-teal-300/15 bg-slate-900/70 shadow-[0_18px_52px_rgba(2,6,23,0.20)]">
+    <section className="overflow-hidden rounded-xl bg-slate-900/70">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 px-5 py-4">
         <div>
           <div className="flex items-center gap-2 text-sm font-semibold text-slate-100">
@@ -1203,8 +1197,8 @@ function LumenVecResearchPreview({
                 const y2 = 28 + target.y * 224;
                 return (
                   <g key={`${source.id}-${target.id}`}>
-                    <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#64748b" strokeOpacity={Math.max(0.22, edge.similarity * 0.72)} strokeWidth={Math.max(1, edge.similarity * 3)} />
-                    {!compact && <><rect x={(x1 + x2) / 2 - 20} y={(y1 + y2) / 2 - 8} width="40" height="14" rx="7" fill="#0f172a" fillOpacity="0.92" /><text x={(x1 + x2) / 2} y={(y1 + y2) / 2 + 2} fill="#94a3b8" fontSize="7.5" textAnchor="middle">d {edge.distance.toFixed(3)}</text></>}
+                    <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#686078" strokeOpacity={Math.max(0.22, edge.similarity * 0.72)} strokeWidth={Math.max(1, edge.similarity * 3)} />
+                    {!compact && <><rect x={(x1 + x2) / 2 - 20} y={(y1 + y2) / 2 - 8} width="40" height="14" rx="7" fill="#171525" fillOpacity="0.92" /><text x={(x1 + x2) / 2} y={(y1 + y2) / 2 + 2} fill="#aaa6b8" fontSize="7.5" textAnchor="middle">d {edge.distance.toFixed(3)}</text></>}
                   </g>
                 );
               })}
@@ -1218,7 +1212,7 @@ function LumenVecResearchPreview({
                     <circle cx={x} cy={y} r={15} fill="transparent" />
                     <circle cx={x} cy={y} r={selected ? 11 : 8} fill={`hsl(${hue} 58% 38%)`} fillOpacity="0.88" stroke={selected ? "#f8fafc" : `hsl(${hue} 70% 68%)`} strokeWidth={selected ? 2 : 1} />
                     <text x={x} y={y + 3} fill="#f8fafc" fontSize="7" fontWeight="700" textAnchor="middle">{node.chunk_index}</text>
-                    <text x={x} y={y + 21} fill="#94a3b8" fontSize="7.5" textAnchor="middle">{node.document_name.length > 14 ? `${node.document_name.slice(0, 14)}…` : node.document_name}</text>
+                    <text x={x} y={y + 21} fill="#aaa6b8" fontSize="7.5" textAnchor="middle">{node.document_name.length > 14 ? `${node.document_name.slice(0, 14)}…` : node.document_name}</text>
                     <title>{`${node.document_name} · chunk ${node.chunk_index}`}</title>
                   </g>
                 );
@@ -1264,7 +1258,7 @@ function LumenVecResearchPreview({
             <MiniMonitor label={tr(language, "Collections", "Collections")} value={status?.metrics.collections ?? 1} />
             <MiniMonitor label={tr(language, "Sessions", "Sessões")} value={status?.metrics.sessions ?? 0} />
           </div>
-          <div className="mt-4 rounded-lg border border-slate-800 bg-slate-950/35 p-3">
+          <div className="mt-4 rounded-lg bg-slate-950/20 p-3">
             <div className="text-[10px] uppercase tracking-[0.12em] text-slate-600">Endpoint</div>
             <div className="mt-1 truncate font-mono text-xs text-slate-400" title={config.base_url}>{config.base_url}</div>
           </div>
@@ -1276,7 +1270,7 @@ function LumenVecResearchPreview({
 
 function MiniMonitor({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="rounded-lg border border-slate-800 bg-slate-950/35 px-3 py-2.5">
+    <div className="rounded-lg bg-slate-950/20 px-3 py-2.5">
       <div className="text-[9px] font-semibold uppercase tracking-[0.12em] text-slate-600">{label}</div>
       <div className="mt-1 text-lg font-semibold text-slate-100">{value}</div>
     </div>
@@ -1309,7 +1303,7 @@ function IngestView({
 }) {
   return (
     <div className="studio-page flex-1 space-y-5">
-      <section className="rounded-xl border border-slate-800 bg-slate-900/70 p-5 shadow-[0_18px_52px_rgba(2,6,23,0.25)]">
+      <section className="rounded-xl bg-slate-900/70 p-5">
         <div className="mb-4 flex flex-col gap-1">
           <div className="flex items-center gap-2 text-sm font-semibold text-slate-100">
             <Upload className="h-4 w-4 text-teal-300" />
@@ -1343,7 +1337,7 @@ function IngestView({
       </section>
 
       {(loading || ingestResults.length > 0) && (
-        <section className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/70 shadow-[0_18px_52px_rgba(2,6,23,0.22)]">
+        <section className="overflow-hidden rounded-xl bg-slate-900/70">
           <div className="flex items-center gap-2 border-b border-slate-800 p-4 text-sm font-semibold text-slate-100">
             <Activity className="h-4 w-4 text-teal-300" />
             {tr(language, "Ingestion result", "Resultado da ingestão")}
@@ -1375,7 +1369,7 @@ function IngestView({
         </section>
       )}
 
-      <section className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/70 shadow-[0_18px_52px_rgba(2,6,23,0.22)]">
+      <section className="overflow-hidden rounded-xl bg-slate-900/70">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 p-4">
           <div className="flex items-center gap-2 text-sm font-semibold text-slate-100">
             <FileText className="h-4 w-4 text-teal-300" />
@@ -1471,6 +1465,13 @@ function EvalView({
   const previousRun = evalRuns[1];
   const scoreDelta = latestRun && previousRun ? latestRun.avg_score - previousRun.avg_score : null;
   const weakRows = evalRows.filter(isWeakEvalRow);
+  const detailsRef = React.useRef<HTMLElement>(null);
+
+  React.useEffect(() => {
+    if (!selectedRun) return;
+    detailsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    detailsRef.current?.focus({ preventScroll: true });
+  }, [selectedRun]);
 
   return (
     <div className="studio-page flex-1 space-y-5">
@@ -1501,7 +1502,7 @@ function EvalView({
         />
       </section>
 
-      <section className="rounded-xl border border-slate-800 bg-slate-900/70 p-5 shadow-[0_18px_52px_rgba(2,6,23,0.22)]">
+      <section className="rounded-xl bg-slate-900/70 p-5">
         <div className="mb-4 flex items-start gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-teal-300/20 bg-teal-300/10 text-teal-200">
             <CheckCircle2 className="h-4 w-4" />
@@ -1523,7 +1524,7 @@ function EvalView({
       </section>
 
       {evalRows.length > 0 && (
-        <section className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/70 shadow-[0_18px_52px_rgba(2,6,23,0.22)]">
+        <section className="overflow-hidden rounded-xl bg-slate-900/70">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 bg-slate-950/35 p-4">
             <div className="text-sm font-semibold text-slate-100">{tr(language, "Current run results", "Resultado da rodada atual")}</div>
             <div className="text-xs text-slate-500">{tr(language, `${weakRows.length} weak point(s) detected`, `${weakRows.length} ponto(s) fraco(s) detectado(s)`)}</div>
@@ -1532,10 +1533,10 @@ function EvalView({
         </section>
       )}
 
-      <EvaluationHistory evalRuns={evalRuns} selectedRunId={selectedRun?.id} onSelectRun={onSelectRun} language={language} />
+      <EvaluationHistory evalRuns={evalRuns} selectedRunId={selectedRun?.id} onSelectRun={onSelectRun} loading={loading} language={language} />
 
       {selectedRun && (
-        <section className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/70 shadow-[0_18px_52px_rgba(2,6,23,0.22)]">
+        <section ref={detailsRef} tabIndex={-1} aria-label={tr(language, "Run details", "Detalhe da rodada")} className="scroll-mt-24 overflow-hidden rounded-xl bg-slate-900/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 bg-slate-950/35 p-4">
             <div>
               <div className="text-sm font-semibold text-slate-100">{tr(language, "Run details", "Detalhe da rodada")}</div>
@@ -1606,7 +1607,7 @@ function VerdictPill({ verdict, language }: { verdict: string; language: Languag
 
 function DashboardStat({ label, value, detail, compact = false }: { label: string; value: React.ReactNode; detail: string; compact?: boolean }) {
   return (
-    <div className="rounded-xl border border-slate-800 bg-slate-900/70 p-4 shadow-[0_18px_52px_rgba(2,6,23,0.18)]">
+    <div className="border-l border-slate-800 px-5 py-2">
       <div className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{label}</div>
       <div className={`mt-2 truncate font-semibold text-slate-50 ${compact ? "text-xl" : "text-3xl"}`}>{value}</div>
       <div className="mt-1 truncate text-xs text-slate-500">{detail}</div>
@@ -1616,7 +1617,7 @@ function DashboardStat({ label, value, detail, compact = false }: { label: strin
 
 function WorkflowStep({ icon, title, description, action, done, onClick }: { icon: React.ReactNode; title: string; description: string; action: string; done: boolean; onClick: () => void }) {
   return (
-    <div className="rounded-lg border border-slate-800 bg-slate-950/35 p-4">
+    <div className="p-4">
       <div className="mb-3 flex items-center justify-between">
         <div className={`flex h-9 w-9 items-center justify-center rounded-lg border ${done ? "border-teal-300/25 bg-teal-300/10 text-teal-200" : "border-slate-700 bg-slate-900 text-slate-400"}`}>
           {icon}
@@ -1632,7 +1633,7 @@ function WorkflowStep({ icon, title, description, action, done, onClick }: { ico
 
 function ReadinessItem({ ok, label, value }: { ok: boolean; label: string; value: string }) {
   return (
-    <div className="flex items-start gap-3 rounded-lg border border-slate-800 bg-slate-950/35 p-3">
+    <div className="flex items-start gap-3 py-3">
       <div className={`mt-0.5 flex h-6 w-6 items-center justify-center rounded-md ${ok ? "bg-teal-300/10 text-teal-300" : "bg-amber-300/10 text-amber-300"}`}>
         {ok ? <CheckCircle2 className="h-4 w-4" /> : <AlertTriangle className="h-4 w-4" />}
       </div>
@@ -1646,7 +1647,7 @@ function ReadinessItem({ ok, label, value }: { ok: boolean; label: string; value
 
 function RecentDocuments({ documents, onOpenIngest, language }: { documents: DocumentSummary[]; onOpenIngest: () => void; language: Language }) {
   return (
-    <section className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/70 shadow-[0_18px_52px_rgba(2,6,23,0.18)]">
+    <section className="overflow-hidden rounded-xl bg-slate-900/70">
       <div className="flex items-center justify-between border-b border-slate-800 p-4">
         <div className="flex items-center gap-2 text-sm font-semibold text-slate-100">
           <FileText className="h-4 w-4 text-teal-300" />
@@ -1674,15 +1675,17 @@ function EvaluationHistory({
   evalRuns,
   selectedRunId,
   onSelectRun,
+  loading = false,
   language,
 }: {
   evalRuns: EvalRun[];
   selectedRunId?: string;
   onSelectRun?: (runId: string) => void;
+  loading?: boolean;
   language: Language;
 }) {
   return (
-    <section className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/70 shadow-[0_18px_52px_rgba(2,6,23,0.18)]">
+    <section className="overflow-hidden rounded-xl bg-slate-900/70">
       <div className="flex items-center gap-2 border-b border-slate-800 p-4 text-sm font-semibold text-slate-100">
         <History className="h-4 w-4 text-teal-300" />
         {tr(language, "Evaluation history", "Histórico de avaliações")}
@@ -1699,31 +1702,40 @@ function EvaluationHistory({
               }`}
             >
               <div className="min-w-0">
-                <div className="truncate text-sm font-medium text-slate-100">{run.id}</div>
-                <div className="mt-1 text-xs text-slate-500">
-                  {new Date(run.created_at * 1000).toLocaleString(language)} · {tr(language, `${run.total} question(s)`, `${run.total} pergunta(s)`)} · {run.good_answers} {tr(language, "good", "boas")}
+                <div className="text-sm font-medium text-slate-100">
+                  {new Date(run.created_at * 1000).toLocaleDateString(language, { day: "numeric", month: "short", year: "numeric" })}
                 </div>
-                {!!run.top_sources.length && (
-                  <div className="mt-2 truncate text-xs text-slate-400">{tr(language, "Sources", "Fontes")}: {run.top_sources.join(", ")}</div>
-                )}
-                <div className="mt-2 flex flex-wrap gap-2 text-xs text-slate-500">
-                  <span className="rounded-md border border-slate-800 bg-slate-950/45 px-2 py-1">JSON: {run.json_path}</span>
-                  <span className="rounded-md border border-slate-800 bg-slate-950/45 px-2 py-1">CSV: {run.csv_path}</span>
+                <div className="mt-1 text-xs leading-5 text-slate-400">
+                  {new Date(run.created_at * 1000).toLocaleTimeString(language, { hour: "2-digit", minute: "2-digit" })} · {run.total} {tr(language, run.total === 1 ? "question" : "questions", run.total === 1 ? "pergunta" : "perguntas")} · {run.good_answers} {tr(language, run.good_answers === 1 ? "good answer" : "good answers", run.good_answers === 1 ? "resposta boa" : "respostas boas")}
                 </div>
+                <details className="mt-2 text-xs text-slate-400">
+                  <summary className="w-fit cursor-pointer rounded py-1 transition hover:text-slate-100 focus-visible:outline-2 focus-visible:outline-teal-300">
+                    {tr(language, "Sources and files", "Fontes e arquivos")}
+                  </summary>
+                  <dl className="mt-2 space-y-3 border-l border-slate-800 pl-3 leading-5">
+                    <div><dt className="text-slate-500">ID</dt><dd className="break-all select-text">{run.id}</dd></div>
+                    {!!run.top_sources.length && (
+                      <div><dt className="text-slate-500">{tr(language, "Sources", "Fontes")}</dt><dd><ul className="space-y-1">{run.top_sources.map((source, index) => <li key={`${source}-${index}`} className="break-all">{source}</li>)}</ul></dd></div>
+                    )}
+                    <div><dt className="text-slate-500">{tr(language, "Local JSON file", "Arquivo JSON local")}</dt><dd className="break-all select-text">{run.json_path || "—"}</dd></div>
+                    <div><dt className="text-slate-500">{tr(language, "Local CSV file", "Arquivo CSV local")}</dt><dd className="break-all select-text">{run.csv_path || "—"}</dd></div>
+                  </dl>
+                </details>
               </div>
               <div className="flex items-center gap-2 md:justify-end">
                 {onSelectRun && (
                   <button
                     type="button"
                     className="secondary-btn min-h-9 px-3 py-1.5"
+                    disabled={loading}
+                    aria-busy={loading}
                     onClick={() => onSelectRun(run.id)}
                   >
-                    {tr(language, "Details", "Detalhes")}
+                    {loading ? tr(language, "Loading…", "Carregando…") : tr(language, "Details", "Detalhes")}
                   </button>
                 )}
-                <div className="rounded-lg border border-slate-800 bg-slate-950/45 px-3 py-2 text-right">
-                  <div className="text-sm font-semibold text-slate-50">{run.avg_score.toFixed(2)}/5</div>
-                  <div className="text-[11px] uppercase tracking-[0.12em] text-slate-500">{tr(language, "score", "pontuação")}</div>
+                <div className="px-1 py-2 text-right" aria-label={tr(language, `Score ${run.avg_score.toFixed(2)} out of 5`, `Pontuação ${run.avg_score.toFixed(2)} de 5`)}>
+                  <div className="text-xl font-semibold tabular-nums text-slate-100">{run.avg_score.toFixed(2)}<span className="ml-1 text-xs font-normal text-slate-400">/ 5</span></div>
                 </div>
               </div>
             </div>
@@ -1745,7 +1757,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 function Metric({ label, value, compact = false }: { label: string; value: React.ReactNode; compact?: boolean }) {
   return (
-    <div className="rounded-lg border border-slate-800 bg-slate-900/60 px-3 py-2">
+    <div className="rounded-lg bg-slate-900/60 px-3 py-2">
       <div className="text-[11px] font-medium uppercase tracking-[0.12em] text-slate-500">{label}</div>
       <div className={`mt-1 truncate font-semibold text-slate-100 ${compact ? "text-xs" : "text-lg"}`}>{value}</div>
     </div>
@@ -1883,7 +1895,7 @@ function ProviderSettings({
           {providers.map((provider) => {
             const runtime = providerConfig[provider.id] || { base_url: provider.base_url };
             return (
-              <div key={provider.id} className="space-y-2 rounded-lg border border-slate-800 bg-slate-900/60 p-3">
+              <div key={provider.id} className="space-y-2 rounded-lg bg-slate-900/60 p-3">
                 <div className="flex items-center justify-between gap-2 text-xs">
                   <span className="font-medium text-slate-200">{provider.name}</span>
                   <span className="text-slate-500">
@@ -1926,7 +1938,7 @@ function TabButton({
   return (
     <button
       className={`inline-flex min-h-9 items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition ${
-        active ? "bg-slate-100 text-slate-950 shadow-sm" : "text-slate-400 hover:bg-slate-800/80 hover:text-slate-100"
+        active ? "bg-violet-500/10 text-violet-200" : "text-slate-400 hover:bg-slate-900/60 hover:text-slate-100"
       }`}
       onClick={onClick}
     >

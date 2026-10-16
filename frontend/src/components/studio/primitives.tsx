@@ -7,9 +7,9 @@ type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 
 const buttonVariants: Record<ButtonVariant, string> = {
   primary:
-    "border-teal-200/55 bg-teal-300 text-slate-950 shadow-[0_14px_34px_rgba(45,212,191,0.18)] hover:border-amber-200 hover:bg-teal-200 focus-visible:ring-teal-200/40",
+    "border-transparent bg-violet-500 text-white hover:bg-violet-400 focus-visible:ring-violet-300",
   secondary:
-    "border-[#2b3b48] bg-[#111a24]/90 text-slate-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] hover:border-teal-300/45 hover:bg-[#172532] focus-visible:ring-slate-400/30",
+    "border-transparent bg-slate-800/60 text-slate-100 hover:bg-slate-700/60 focus-visible:ring-violet-300",
   ghost:
     "border-transparent bg-transparent text-slate-400 hover:border-slate-700 hover:bg-slate-900/70 hover:text-slate-100 focus-visible:ring-teal-300/25",
   danger:
@@ -59,7 +59,7 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
     <div
       ref={ref}
       className={cn(
-        "rounded-xl border border-[#2b3b48] bg-[#111a24]/88 p-5 text-slate-100 shadow-[0_20px_64px_rgba(2,6,23,0.36),inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-xl",
+        "rounded-xl bg-slate-900/70 p-5 text-slate-100",
         className
       )}
       {...props}
@@ -105,7 +105,7 @@ export const Chip = React.forwardRef<HTMLSpanElement, ChipProps>(
     <span
       ref={ref}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-md border border-slate-700 bg-slate-900/80 px-2.5 py-1 text-xs font-medium text-slate-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]",
+        "inline-flex items-center gap-1.5 rounded-md bg-slate-900/80 px-2.5 py-1 text-xs font-medium text-slate-300",
         className
       )}
       {...props}

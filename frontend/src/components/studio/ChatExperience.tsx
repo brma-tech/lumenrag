@@ -91,7 +91,7 @@ export function ChatExperience({
             {messages.length === 0 ? (
               <EmptyChatState loading={loading} onSend={onSend} language={language} />
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-7">
                 {messages.map((message, index) => (
                   <MessageBubble key={`${message.role}-${index}`} message={message} language={language} showSources={researchMode} />
                 ))}
@@ -151,7 +151,7 @@ function EmptyChatState({
   return (
     <div className="flex h-full min-h-[45vh] items-center justify-center text-center">
       <div className="w-full max-w-2xl space-y-4">
-        <Card className="border-slate-800 bg-[linear-gradient(180deg,rgba(30,41,48,0.76),rgba(24,33,38,0.70))] p-6 md:p-8">
+        <Card className="bg-transparent p-6 md:p-8">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg border border-teal-200/20 bg-teal-200/10 text-teal-100">
             <Sparkles className="h-5 w-5" />
           </div>
@@ -168,7 +168,7 @@ function EmptyChatState({
                 type="button"
                 onClick={() => onSend(suggestion)}
                 disabled={loading}
-                className="rounded-lg border border-slate-800 bg-slate-950/45 px-4 py-3 text-sm text-slate-200 transition hover:border-teal-200/30 hover:bg-teal-200/10 hover:text-teal-50 disabled:pointer-events-none disabled:opacity-50"
+                className="rounded-lg bg-slate-900/70 px-4 py-3 text-sm text-slate-200 transition hover:border-teal-200/30 hover:bg-teal-200/10 hover:text-teal-50 disabled:pointer-events-none disabled:opacity-50"
               >
                 {suggestion}
               </button>
@@ -205,7 +205,7 @@ function DocumentFilterPanel({
   language: Language;
 }) {
   return (
-    <section className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/70 shadow-[0_18px_52px_rgba(2,6,23,0.18)]">
+    <section className="overflow-hidden rounded-xl bg-slate-900/50">
       <div className="flex items-center justify-between border-b border-slate-800 p-4">
         <div className="flex items-center gap-2 text-sm font-semibold text-slate-100">
           <Filter className="h-4 w-4 text-teal-300" />
@@ -237,10 +237,10 @@ function DocumentFilterPanel({
                   key={document.document_name}
                   type="button"
                   onClick={() => onToggleDocument(document.document_name)}
-                  className={`flex w-full items-start gap-3 rounded-lg border p-3 text-left transition ${
+                  className={`flex w-full items-start gap-3 rounded-lg p-3 text-left transition ${
                     selected
-                      ? "border-teal-300/35 bg-teal-300/10"
-                      : "border-slate-800 bg-slate-950/35 hover:border-slate-600"
+                      ? "bg-violet-500/12"
+                      : "bg-transparent hover:bg-slate-800/35"
                   }`}
                 >
                   <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border ${
@@ -268,7 +268,7 @@ function DocumentFilterPanel({
 
 function SourcesPanel({ sources, language }: { sources: Source[]; language: Language }) {
   return (
-    <section className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/70 shadow-[0_18px_52px_rgba(2,6,23,0.18)]">
+    <section className="overflow-hidden rounded-xl bg-slate-900/50">
       <div className="flex items-center gap-2 border-b border-slate-800 p-4 text-sm font-semibold text-slate-100">
         <FileText className="h-4 w-4 text-teal-300" />
         {t(language, "sourcesTitle")}
@@ -299,10 +299,10 @@ function SourceCard({ source }: { source: Source }) {
       </div>
       <div className="truncate text-sm font-medium text-slate-100">{source.document_name}</div>
       <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
-        <div className="rounded-md border border-slate-800 bg-slate-950/35 px-2 py-1 text-slate-400">
+        <div className="px-2 py-1 text-slate-400">
           rerank {source.rerank_score.toFixed(4)}
         </div>
-        <div className="rounded-md border border-slate-800 bg-slate-950/35 px-2 py-1 text-slate-400">
+        <div className="px-2 py-1 text-slate-400">
           dist {source.distance.toFixed(4)}
         </div>
       </div>
