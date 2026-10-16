@@ -19,7 +19,7 @@ def test_api_exposes_lumenrag_identity(monkeypatch, tmp_path) -> None:
     assert response.status_code == 200
     assert response.json() == {
         "name": "LumenRAG",
-        "version": "0.1.8",
+        "version": "0.1.9",
         "studio": "not_built",
         "docs": "/docs",
     }

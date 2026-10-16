@@ -30,7 +30,7 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import { ChatExperience } from "./components/studio/ChatExperience";
+const ChatExperience = React.lazy(() => import("./components/studio/ChatExperience").then((module) => ({ default: module.ChatExperience })));
 import { api, defaultConfig } from "./api";
 import type {
   AIConfig,
@@ -625,6 +625,7 @@ function App() {
             />
           )}
           {tab === "chat" && (
+            <React.Suspense fallback={<div role="status" className="p-6 text-sm text-slate-400">{tr(language, "Loading chat…", "Carregando chat…")}</div>}>
             <ChatExperience
               messages={messages}
               documents={documents}
@@ -645,6 +646,7 @@ function App() {
               language={language}
               researchMode={researchMode}
             />
+            </React.Suspense>
           )}
           {tab === "ingest" && (
             <IngestView
