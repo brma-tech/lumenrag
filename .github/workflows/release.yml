@@ -127,7 +127,7 @@ jobs:
           packages-dir: dist/wheels/
           print-hash: true
       - name: Create GitHub release with wheels and checksums
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           name: LumenRAG ${{ github.ref_name }}
           generate_release_notes: true
