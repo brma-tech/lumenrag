@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
+from typing import Annotated
+
+from pydantic import BaseModel, Field, StringConstraints
 
 from rag_lumenvec.core.config import (
     DEFAULT_BASE_URL,
@@ -13,6 +15,18 @@ from rag_lumenvec.core.config import (
     DEFAULT_TOP_K,
     MAX_QUESTIONS_BYTES,
 )
+
+
+class CollectionCreate(BaseModel):
+    name: Annotated[
+        str,
+        StringConstraints(
+            strip_whitespace=True,
+            min_length=1,
+            max_length=128,
+            pattern=r"^[a-zA-Z0-9][a-zA-Z0-9_.-]*$",
+        ),
+    ]
 
 
 class RagConfig(BaseModel):

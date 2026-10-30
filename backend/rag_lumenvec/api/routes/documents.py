@@ -16,10 +16,11 @@ from rag_lumenvec.core.config import (
 from rag_lumenvec.repositories.files import (
     list_chat_sessions,
     list_collections,
+    register_collection,
     save_upload_bytes,
     summarize_documents,
 )
-from rag_lumenvec.schemas import RagConfig
+from rag_lumenvec.schemas import CollectionCreate, RagConfig
 from rag_lumenvec.services.ai import ai_client
 from rag_lumenvec.services.ingestion import (
     clear_collection,
@@ -37,6 +38,14 @@ router = APIRouter(route_class=UploadRoute)
 @router.get("/collections")
 def collections() -> dict[str, list[str]]:
     return {"collections": list_collections()}
+
+
+@router.post("/collections")
+def create_collection(payload: CollectionCreate) -> dict[str, Any]:
+    return {
+        "collection": payload.name,
+        "collections": register_collection(payload.name),
+    }
 
 
 @router.get("/sessions")

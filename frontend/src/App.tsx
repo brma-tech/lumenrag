@@ -59,6 +59,7 @@ function App() {
   const [config, setConfig] = React.useState<Config>(defaultConfig);
   const [tab, setTab] = React.useState<Tab>("dashboard");
   const [collections, setCollections] = React.useState<string[]>(["default"]);
+  const [newCollection, setNewCollection] = React.useState("");
   const [sessions, setSessions] = React.useState<string[]>(["default"]);
   const [documents, setDocuments] = React.useState<DocumentSummary[]>([]);
   const [messages, setMessages] = React.useState<Message[]>([]);
@@ -256,6 +257,29 @@ function App() {
 
   const checkHealth = async () => {
     await runHealthCheck(config.base_url, { showNotice: true, setBusy: true });
+  };
+
+  const createCollection = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!newCollection.trim() || loading) return;
+    setLoading(true);
+    setError("");
+    setNotice("");
+    try {
+      const payload = await api<{ collection: string; collections: string[] }>("/api/collections", {
+        method: "POST",
+        body: JSON.stringify({ name: newCollection.trim() }),
+      });
+      setCollections(payload.collections);
+      setSelectedChatDocuments([]);
+      setConfig((current) => ({ ...current, collection: payload.collection, session_id: "default" }));
+      setNewCollection("");
+      setNotice(tr(language, "Collection created and selected.", "Coleção criada e selecionada."));
+    } catch (exc) {
+      setError((exc as Error).message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const saveAiSettings = async () => {
@@ -536,16 +560,32 @@ function App() {
               <input className="input" value={config.base_url} onChange={(e) => setConfig({ ...config, base_url: e.target.value })} />
             </Field>
             <div className="grid grid-cols-[1fr_auto] gap-2">
-              <Field label="Collection">
-                <input list="collections" className="input" value={config.collection} onChange={(e) => setConfig({ ...config, collection: e.target.value })} />
-                <datalist id="collections">
-                  {collections.map((collection) => <option key={collection} value={collection} />)}
-                </datalist>
+              <Field label={tr(language, "Collection", "Coleção")}>
+                <select aria-label={tr(language, "Collection", "Coleção")} className="input" value={config.collection} disabled={loading} onChange={(e) => { setSelectedChatDocuments([]); setConfig({ ...config, collection: e.target.value, session_id: "default" }); }}>
+                  {collections.map((collection) => <option key={collection} value={collection}>{collection}</option>)}
+                </select>
               </Field>
               <button className="icon-btn mt-6" onClick={() => refreshMeta()} disabled={loading} title={tr(language, "Refresh", "Atualizar")} aria-label={tr(language, "Refresh metadata", "Atualizar metadados")}>
                 <RefreshCw className="h-4 w-4" />
               </button>
             </div>
+            <form onSubmit={createCollection} className="flex items-center gap-2">
+              <input
+                aria-label={tr(language, "New collection name", "Nome da nova coleção")}
+                placeholder={tr(language, "New collection", "Nova coleção")}
+                title={tr(language, "Use letters, numbers, dots, hyphens or underscores.", "Use letras, números, pontos, hífens ou sublinhados.")}
+                className="input min-w-0 flex-1"
+                value={newCollection}
+                onChange={(e) => setNewCollection(e.target.value)}
+                pattern="[a-zA-Z0-9][a-zA-Z0-9_.-]*"
+                maxLength={128}
+                disabled={loading}
+                required
+              />
+              <button type="submit" className="icon-btn" disabled={loading || !newCollection.trim()} title={tr(language, "Create collection", "Criar coleção")} aria-label={tr(language, "Create collection", "Criar coleção")}>
+                <Plus className="h-4 w-4" />
+              </button>
+            </form>
             <Field label={tr(language, "Session", "Sessão")}>
               <input list="sessions" className="input" value={config.session_id} onChange={(e) => setConfig({ ...config, session_id: e.target.value })} />
               <datalist id="sessions">
