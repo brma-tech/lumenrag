@@ -3,6 +3,7 @@ from __future__ import annotations
 import csv
 import json
 import re
+import threading
 import uuid
 from dataclasses import asdict
 from pathlib import Path
@@ -10,6 +11,8 @@ from typing import Any
 
 from rag_lumenvec.core import config
 from rag_lumenvec.models import ChunkRecord
+
+_collections_lock = threading.Lock()
 
 
 def ensure_storage() -> None:
@@ -54,8 +57,27 @@ def rewrite_chunk_records(records: list[ChunkRecord]) -> None:
 
 
 def list_collections() -> list[str]:
-    collections = sorted({record.collection for record in load_all_chunk_records()})
-    return collections or [config.DEFAULT_COLLECTION]
+    path = config.APP_DIR / "collections.json"
+    registered = json.loads(path.read_text(encoding="utf-8")) if path.exists() else []
+    return sorted(
+        {config.DEFAULT_COLLECTION, *registered}
+        | {record.collection for record in load_all_chunk_records()}
+    )
+
+
+def register_collection(name: str) -> list[str]:
+    """Persist logical collections independently of their indexed documents."""
+    with _collections_lock:
+        collections = sorted({*list_collections(), name})
+        config.APP_DIR.mkdir(parents=True, exist_ok=True)
+        path = config.APP_DIR / "collections.json"
+        temporary = path.with_name(f".collections-{uuid.uuid4().hex}.tmp")
+        try:
+            temporary.write_text(json.dumps(collections), encoding="utf-8")
+            temporary.replace(path)
+        finally:
+            temporary.unlink(missing_ok=True)
+        return collections
 
 
 def summarize_documents(collection: str) -> list[dict[str, Any]]:
