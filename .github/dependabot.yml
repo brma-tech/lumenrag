@@ -7,6 +7,11 @@ updates:
     open-pull-requests-limit: 5
   - package-ecosystem: npm
     directory: /frontend
+    # Match the Node 22 runtime used by CI and release builds.
+    ignore:
+      - dependency-name: "@types/node"
+        update-types:
+          - version-update:semver-major
     groups:
       react-runtime:
         patterns:
